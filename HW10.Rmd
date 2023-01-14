@@ -1,0 +1,119 @@
+---
+title: "HW10 - Math 181B"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+## Question 1.
+```{r}
+Bulbs = data.frame(data = c(905, 1018, 905, 886, 958, 1056, 904, 856, 1070, 1006, 
+                           1109, 1155, 835, 1152, 1036, 926, 1029, 1040, 959, 996, 
+                           571, 1346, 292, 825, 676, 541, 818, 90, 2246, 104), 
+                           Plant = rep(c("Plant 1", "Plant 2", "Plant 3"), each = 10))
+```
+
+##### a) Test the hypothesis that the median lives of bulbs produced at the three plants are all the same. Use the 0.05 level of significance and use the Kruskal-Wallis test.
+
+_let mu be the median lives of bulbs produced at the plant._
+  $$
+  H_0: \mu_1 = \mu_2 = \mu_3 \\
+  H_1: at \space least \space one \space is \space not \space the \space same
+  $$
+  
+```{r}
+kruskal.test(Bulbs$data ~ Bulbs$Plant)
+p.value <- 0.01736
+p.value < 0.05
+```
+_since the level of significant is 0.05, and the p-value that we got from Kruskal test is 0.01736, which is less than the level of significant. Therefore we reject H0._ 
+  
+  
+
+##### b) Are the mean lives of bulbs produced at the three plants all the same? Use the analysis of variance. 
+  $$
+  H_0: \mu_1 = \mu_2 = \mu_3 \\
+  H_1: at \space least \space one \space is \space not \space the \space same
+  $$
+```{r}
+aov.fit <- aov(data ~ Plant, data = Bulbs)
+summary(aov.fit)
+p.value.aov <- 0.264
+p.value.aov < 0.05
+```
+_since the level of significant is 0.05, and the p-value that we got from one-way ANOVA test is 0.264, which is greater than the level of significant. Therefore we fail to reject H0._ 
+  
+
+##### c) Compare the results in a) and b).
+```{r}
+hist(Bulbs$data[1:10])
+hist(Bulbs$data[11:20])
+hist(Bulbs$data[21:30])
+```
+
+_the result in a) has the p.value that is less than 0.05 and we reject H0, while the result in b) has the p.value that is greater than 0.05 and we fail to reject H0. Therefore, these two p.value of two different methods have significant difference. According the histogram of each class shown above, we noticed that they are not forming the normal distribution, which tells us that we should not use one-way ANOVA to solve this type of question._
+
+
+## Question 2.
+
+##### a) In R, record the data set in a matrix sodium, with rownames(sodium) = 1:12 and colnames(sodium) = c("Picryl Chloride","Devies","AOAC").
+
+```{r}
+sodium <- matrix(c(0.598, 0.628, 0.632, 0.614, 0.628, 0.630, 0.600, 0.600, 0.622, 0.580, 0.612, 0.584, 0.596, 0.600, 0.650, 0.592, 0.628, 0.606, 0.616, 0.628, 0.644, 0.614, 0.644, 0.644, 0.604, 0.644, 0.624, 0.608, 0.612, 0.619, 0.602, 0.628, 0.632, 0.614, 0.644, 0.616), nrow = 12, byrow = TRUE)
+rownames(sodium) <- 1:12
+colnames(sodium) = c("Picryl Chloride","Devies","AOAC")
+sodium
+```
+
+
+##### b) Calculate the ranks for each row. For example, you could use
+```{r}
+(rank.mat <- t(apply(sodium, 1, rank)))
+```
+
+
+##### c) Calculate the rank sum for each laboratory method.
+```{r}
+(rank.sum <- colSums(rank.mat))
+```
+
+
+##### d) Based on the results in c), calculate the value of the Friedman test statistic.
+```{r}
+b <- nrow(sodium)
+k <- ncol(sodium)
+(G <- sum(rank.sum^2) * 12/(b * k * (k + 1)) - 3 * b * (k + 1))
+```
+
+
+##### e) Given that the Friedman test statistic follows a chi-squared distribution with k − 1 degrees of freedom, where k is the number of treatments, calculate the p-value of the test for the data set.
+```{r}
+(p.value <- pchisq(G, df = k-1, lower.tail = FALSE))
+```
+
+
+##### f) use friedman.test to calculate the p-value.
+```{r}
+friedman.test(sodium)
+```
+
+
+## Question 3.
+  H0: these 24 observations can be considered a random sequence. \\
+  H1: these 24 observations cannot be considered a random sequence. 
+
+```{r}
+obs <- c(41388, 44880, 33556, 34805, 33025, 34873, 31330, 30954, 32402, 38020, 42828, 41204, 44148, 42038, 35157, 39568, 34185, 37604, 28231, 29109, 38080, 34184, 39842, 46727)
+(obs.diff <- diff(obs))
+(sgn.seq <- sign(obs.diff))
+(W <- length(rle(sgn.seq)$values))
+n <- 24
+(W.mean <- (2*n - 1)/3)
+(W.var <- (16*n - 29)/90)
+(z <- (W - W.mean)/sqrt(W.var))
+(p.value <- 2 * pnorm(-z, mean = 0, sd = 1, lower.tail = TRUE))
+p.value < 0.05
+```
+_Since the p.value is 0.5020007, which is greater than the level of significant 0.05. Therefore, we fail to reject H0, which we don't have enough evidence to show that these 24 observations cannot be considered a random sequence._
+
+

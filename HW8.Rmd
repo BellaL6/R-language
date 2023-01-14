@@ -1,0 +1,121 @@
+---
+title: "Math 181B - HW8"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+## Question 1.
+ $$
+ factor A: type \\
+ factor B: method \\
+ I = \# \space of \space type = 3 \\
+ J = \# \space of \space method = 2 \\
+ n = \# \space of \space cheeses \space = n_{ij} = 2 \\
+ $$
+```{r}
+(data.table = matrix(c(39.02, 38.79, 38.96, 
+                       39.01, 35.74, 35.41, 
+                       35.58, 35.52, 37.02, 
+                       36.00, 35.70, 36.04), nrow = 4, ncol = 3))
+```
+ 
+##### a) Conduct a hypothesis to test whether there are some effects in type (Factor 1) without interaction.
+  $$
+  H_0: \alpha_1 = \alpha_2 =\alpha_3 = 0 \\
+  H_1: at \space least \space one \space \alpha_i \neq 0 \\
+  $$
+```{r}
+moisture <- data.frame(data = c(39.02, 38.79, 35.74, 
+                                35.41, 37.02, 36.00, 
+                                38.96, 39.01, 35.58, 
+                                35.52, 35.70, 36.04))
+moisture$Type <- rep(rep(c("type 1", "type 2", "type 3"), each=2), 2)
+moisture$Method <- rep(c("method 1", "method 2"), each = 6)
+moisture
+summary(aov(data ~ Type+Method, data = moisture))
+```
+_assume the level of significant is 0.05. Since the p.value for Type effect is 1.66 * 10^-6, which is very small and lower than 0.05. Therefore, we reject H0._
+
+  
+##### b) Conduct a hypothesis to test whether there are some effects in type (Factor 1) with interaction.
+  $$
+  H_0: \alpha_1 = \alpha_2 =\alpha_3 = 0 \\
+  H_1: at \space least \space one \space \alpha_i \neq 0 \\
+  $$
+```{r}
+summary(aov(data ~ Type*Method, data = moisture))
+```
+_assume the level of significant is 0.05. Since the p.value for Type effect is 1.55 * 10^-5, which is very small and lower than 0.05. Therefore, we reject H0._
+  
+##### c) Draw a interaction plot for the data set, and discuss whether there are any interaction effects in type and method?
+```{r}
+moisture <- c(39.02, 38.79, 35.74, 
+              35.41, 37.02, 36.00, 
+              38.96, 39.01, 35.58, 
+              35.52, 35.70, 36.04)
+Type <- rep(rep(c("Type 1", "Type 2", "Type 3"), each = 2), 2)
+Method <- rep(c("Method 1", "Method 2"), each=6)
+cheese <- data.frame(data = moisture, type = Type, method = Method)
+cheese
+interaction.plot(Method, Type, moisture)
+interaction.plot(Type, Method, moisture)
+```
+
+_In the first plot, we observed that lines representing type during method 1 and method 2 are nearly parallel, which for different methods, the means of moisture are equal. However, since the distance between type 1 and type 3, between type 1 and type 2, and also between type 2 and type 3 are very large, it tells for different types, the means of moisture are so far._
+_In the second plot, we observed that it contains interaction, which the interaction effect is not equal to 0. Moreover, for Type 1 at Method 2, it is greater than the point of Type 1 at Method 1. But in further, for the point of Type 2 at Method 2 and for the point of Type 3 at Method 2, they are lower than the point of Type 2 at Method 1 and the point of Type 3 at Method 1. Therefore, in this plot, all three effects(Type effect, Method effect, Interaction effect) are not 0._  
+
+##### d) Conduct a hypothesis to test whether there are some interaction effects.
+  $$
+  H_0: \gamma_{11} = \gamma_{12} = ... = \gamma_{32} = 0 \\
+  H_1: at \space least \space one \space \gamma_{ij} \neq 0 \\
+  $$
+```{r}
+summary(aov(data ~ Type*Method, data = cheese))
+```
+
+
+_Assume the level of significant is 0.05. Since the p.value for interaction effect is 0.323, which is very large and is greater than 0.05. Therefore, we fail to reject H0._
+
+##### e) Based on the results in c) and d), comment on the differences between the results in a) and b).
+_results in a) and b) are different, but their difference is not big. Both of them reject H0, which they both have strong enough evidence to show the Type effect is not 0. And based on the results in c) and d), we noticed that the first plot in c) is testing without interaction, while the second plot in d) is testing with interaction. Connecting with result in d), we can tell the ANOVA test in d) refers back to the first plot. However, it still shows that the Type effect is not 0. Therefore, the Type effect doesn't really affect by interaction effect._
+
+## Question 2.
+```{r}
+data.table <- data.frame(data = c(13.4, 37.5, 65.2, 60.8, 37.7, 
+                                  14.4, 29.3, 36.4, 39.1, 39.4), 
+                         A = rep(c("Fresh", "Wilted"), each = 5), 
+                         B = rep(c("Period 1", "Period 2", "Period 3", 
+                                   "Period 4", "Period 5"), 2))
+data.table
+```
+
+##### a) To test whether the population means for the condition (Factor A) are different, which tests you can use? (Multiple choices problem)
+* A) One-way ANOVA.
+* B) Two-way ANOVA.
+* C) Two-sample t-test.
+* D) Paired t-test.
+
+_I can use B) Two-way ANOVA and D) Paired t-test since each data is controlled by its treatment and block. For data within a treatment, they cannot switch the location with each other. It is only switchable between each of data set for blocks or for treatments._
+
+##### b) Based on the results in a), do the hypothesis tests for every correct answer in a), and compare the results.
+  $$
+  H0: \alpha_1 = \alpha_2 = 0 \\
+  H1: at \space least \space one \space \alpha_i \neq 0 \\ 
+  $$
+**1. do the Two-way ANOVA:**
+```{r}
+summary(aov(data ~ A+B, data = data.table))
+```
+_assume the level of significant is 0.05. Since the P.value for factor A effect is 0.1402, which is greater than 0.05. Therefore we fail to reject H0._
+
+**2. do the Paired t-test:**
+```{r}
+x = data.table$data[1:5]
+y = data.table$data[6:10]
+t.test(x, y, alternative = "two.sided", paired = TRUE)
+```
+_assume the level of significant is 0.05. Since the P.value for factor A effect is 0.1402, which is greater than 0.05. Therefore we fail to reject H0._ 
+
+_results on both methods are equal, which tells that the Two-way ANOVA is the same with the paired t-test for test without interaction, both of them can be used to determine whether there are some main effect on factor A._ 
+  

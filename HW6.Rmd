@@ -1,0 +1,127 @@
+---
+title: "HW6 - Math181B"
+output: html_document
+---
+
+## Question1.
+```{r}
+x <- c(17.1, 15.8, 15.1, 12.1, 18.4, 17.1, 16.7, 16.5, 15.1, 15.1, 10.5, 13.8, 15.7, 11.9, 10.4, 15.0, 16.0, 17.8)
+y <- c(16.7, 15.2, 14.8, 11.9, 18.3, 16.7, 16.6, 15.9, 15.1, 14.5, 10.4, 13.5, 15.7, 11.6, 10.2, 14.5, 15.8, 17.6)
+summary(lm(y~x))
+```
+
+##### a) Construct a 98% confidence interval for E(Y |X = 14.0).
+```{r}
+predict(lm(y~x), newdata = data.frame(x=14.0), interval = 'confidence', level = 0.98)
+```
+*the 98% confidence interval for E(Y|X = 14.0) is: (13.59473, 13.86263).*
+
+
+##### b) Construct a 98% prediction interval for the volume of a child weighing 14.0 kilograms.
+```{r}
+predict(lm(y~x), newdata = data.frame(x=14.0), interval = 'prediction', level = 0.98)
+```
+*the 98% confidence interval for the volume of a child weighing 14.0 kilograms is: (13.19053, 14.26683).*
+
+
+##### c) Calculate the sample correlation coefficient r between x and y.
+```{r}
+(r <- cor(x,y))
+```
+
+
+##### d) What is the value of R^2? What does R^2 imply for the relation between x and y?
+```{r}
+summary(lm(y~x))
+```
+*the value of R^2 is 0.9931268. The R^2 imply that the proportion of the total variance in the y_i's that can be attributed to the linear relationship with x.* 
+
+
+##### e) What are the estimated values of μX, μY , σ2X, σ2Y and ρ?
+  $$
+  \begin{aligned}
+  \hat \mu_x &= \frac{1}{n} \sum_{i=1}^n x_i \\
+  \hat \mu_y &= \frac{1}{n} \sum_{i=1}^n y_i \\
+  s_x^2 &= \frac{1}{n-1} \sum_{i=1} (x_i - \bar x)^2 \\
+  s_y^2 &= \frac{1}{n-1} \sum_{i=1} (y_i - \bar y)^2 \\
+  s_{xy} &= \sum_{i=1}^n \frac{(x_i - \hat \mu_x)(y_i - \hat \mu_y)}{n-1} \\
+  r &= s_{xy} / \sqrt(s_x^2 * s_y^2) \\
+  \end{aligned}
+  $$
+```{r}
+n <- length(x)
+(x.bar <- sum(x) / n)
+(y.bar <- sum(y) / n)
+(s.x.sq <- var(x))
+(s.y.sq <- var(y))
+s.xy <- cov(x,y) ## sample covariance
+(r <- s.xy / (sqrt(s.x.sq) * sqrt(s.y.sq)))
+```
+
+
+##### f) Test whether ρ = 0. Let 0.05 be the level of significance.
+  $$
+  H_0: ρ = 0 \\
+  H_1: ρ != 0
+  $$
+```{r}
+(t.score <- (sqrt(n-2)*r) / sqrt(1-r^2))
+upt.pval <- pt(abs(t.score), df=n-2, lower.tail = FALSE)
+(p.value <- 2*upt.pval)
+alpha <- 0.05
+p.value < alpha
+```
+*since the p-value is less than the level of significance, we reject the H0.*
+
+
+## Question2.
+##### a) Prove that SST = SSTr + SSR.
+  $$
+  \begin{aligned}
+  \bar y_i &= \frac{1}{n_i} \sum_{j=1}^{n_i} y_{ij} \\
+  n &= \sum_{i=1}^p n_i \\
+  SSTr &= \sum_{i=1}^p n_i(\bar y_i - \bar y)^2 \\
+       &= \sum_{i=1}^p n_i(\bar y_i^2 - 2\bar y_i\bar y + \bar y^2) \\
+       &= \sum_{i=1}^p n_i \bar y_i^2 - 2\sum_{i=1}^p n_i \bar y_i \bar y + \sum_{i=1}^p n_i \bar y^2 \\
+       &= \sum_{i=1}^p n_i \bar y_i^2 - 2\bar y \sum_{i=1}^p n_i \bar y_i + n \bar y^2 \\
+       &= \sum_{i=1}^p n_i \bar y_i^2 - 2\bar y \sum_{i=1}^p n_i * \frac{1}{n_i} \sum_{j=1}^{n_i} \bar y_{ij} + n \bar y^2 \\
+       &= \sum_{i=1}^p n_i \bar y_i^2 - 2\bar y \sum_{i=1}^p \sum_{j=1}^{n_i} \bar y_{ij} + n \bar y^2 \\
+       &= \sum_{i=1}^p n_i \bar y_i^2 - (2\bar y \sum_{i=1}^p \sum_{j=1}^{n_i} \bar y_{ij} - n \bar y^2) \\
+       
+  SSR &= \sum_{i=1}^p \sum_{j=1}^{n_i} (y_{ij} - \bar y_i)^2 \\
+      &= \sum_{i=1}^p \sum_{j=1}^{n_i} y_{ij}^2 - 2\sum_{i=1}^p \sum_{j=1}^{n_i} y_{ij} \bar y_i + \sum_{i=1}^p \sum_{j=1}^{n_i} \bar y_i^2 \\
+      &= \sum_{i=1}^p \sum_{j=1}^{n_i} y_{ij}^2 - 2\sum_{i=1}^p n_i \bar y_i^2 + \sum_{i=1}^p n_i \bar y_i^2 \\
+      &= \sum_{i=1}^p \sum_{j=1}^{n_i} y_{ij}^2 - \sum_{i=1}^p n_i \bar y_i^2 \\
+      
+  SST &= \sum_{i=1}^p \sum_{j=1}^{n_i} (y_{ij} - \bar y)^2 \\
+      &= \sum_{i=1}^p \sum_{j=1}^{n_i} (y_{ij}^2 - 2y_{ij} \bar y + \bar y^2) \\
+      &= \sum_{i=1}^p \sum_{j=1}^{n_i} y_{ij}^2 -2 \bar y \sum_{i=1}^p \sum_{j=1}^{n_i} y_{ij} + n\bar y^2\\
+      &= \sum_{i=1}^p \sum_{j=1}^{n_i} y_{ij}^2 -(2 \bar y \sum_{i=1}^p \sum_{j=1}^{n_i} y_{ij} - n\bar y^2)\\
+      &= \sum_{i=1}^p \sum_{j=1}^{n_i} y_{ij}^2 + (SSTr \space - \sum_{i=1}^p n_i \bar y_i^2) \\
+      &= (\sum_{i=1}^p \sum_{j=1}^{n_i} y_{ij}^2 - \sum_{i=1}^p n_i \bar y_i^2) + SSTr \\
+      &= SSR + SSTr \\
+      
+  
+  \end{aligned}
+  $$
+
+
+
+
+## Question3.
+##### a) What is the value of the F test statistic?
+```{r}
+data.ex <- data.frame(obs = c(22,26,28,24,29,29,32,28,23,24), class = c("1","1","2","2","2","3","3","3","4","4"))
+aov.fit1 = aov(obs~class, data=data.ex)
+summary(aov.fit1)
+```
+*the value of the F test statistic is: 3.936.*
+
+##### b) What is the p-value? What is your conclusion?
+
+```{r}
+p.value <- 0.0723
+alpha <- 0.05
+p.value < alpha
+```
+*since p.value is greater than the level of significant, we fail to reject H0.*

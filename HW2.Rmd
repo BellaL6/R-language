@@ -1,0 +1,184 @@
+---
+title: "HW2 - Math 181B"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+## Question 1.
+
+##### a) Choose the proper values of n, m, μ1, μ2 and σ2 yourselves.
+```{r}
+n = 50
+m = 30
+mu1 = 1
+mu2 = 2
+var = 1
+```
+  $$
+  n = 50 \\
+  m = 30 \\
+  \mu_1 = 1 \\
+  \mu_2 = 2 \\
+  \sigma^2 = 1 \\
+  $$
+
+##### b) Based on your values in (a), set a proper random seed, and generate two samples x and y.
+```{r}
+set.seed(1)
+x = rnorm(n, mean = mu1, sd = sqrt(var))
+print(x)
+
+y = rnorm(m, mean = mu2, sd = sqrt(var))
+print(y)
+```
+
+##### c) Provide an unbiased estimator of μ1, and find the theoretical distribution of the estimator.
+  $$
+  \hat{\mu_1} = \bar{X} = \frac{1}{50} \sum_{i = 1}^{50} X_i = \frac{1}{50} (X_1 + \dots + X_{50}). \\
+  \hat{\mu_1} = \bar{X} = \frac{1}{n} \sum_{i = 1}^n X_i = \frac{1}{n} (X_1 + \dots + X_n).
+  $$
+  *the theoretical distribution of hte estimator is:
+  \\ _case 1: knowing n = 50:_
+  $$
+  N(\mu_1, \frac{\sigma^2}{50})
+  $$
+  _case 2: unknown n:_
+  $$
+  N(\mu_1, \frac{\sigma^2}{n})
+  $$
+
+##### d) Test whether μ1 = μ0 based on the data x you generated in (b)? What’s your test statistic, and what is its value based on the samples in (b).
+   
+   *the test statistic is:
+   $$
+   T = \frac{(\bar{X} - \mu_1)}{\frac{S}{\sqrt(n)}} \\
+   $$
+   *Knowing that: 
+   $$
+   S = \sqrt(\frac{\sum_{i = 1}^n (x_i - \bar{X})^2)}{n-1})
+   $$
+   the t_value is:
+   
+```{r}
+mu0 = 1/2 *(mu1 + mu2)
+xbar <- mean(x)
+l = rep(NA, n)
+for (i in 1:n) {
+  l[i] = (x[i] - xbar)^2
+}
+s.pool <- sqrt(sum(l)) / sqrt(n-1) 
+t.score <- (xbar - mu0) /(s.pool / sqrt(n))
+print(t.score)
+```
+
+
+##### e) Based on (d), calculated the p-value. Given α = 0.05, what is your conclusion?
+```{r}
+p.value <- 2*pt(abs(t.score), df = n-1, lower.tail = FALSE)
+print(p.value) 
+alpha = 0.05
+p.value < alpha
+```
+  $$
+  p-value = 0.001355265 < 0.05 = \alpha
+  $$
+_since the p-value is less than the level of significant level, we reject H0._
+
+
+##### f) Provide an estimator of μ1 −μ2 based on X1, . . . ,Xn and Y1, . . . , Ym, and what is the distribution of the estimator?
+   
+   *the estimator of μ1 −μ2 is: 
+   $$
+   \hat{\mu_1 - \mu_2} = \bar{X} - \bar{Y} = \frac{1}{n} \sum_{i = 1}^n (x_i) - \frac{1}{m}\sum_{j = 1}^m (y_j)
+   $$
+   *the distribution of the estimator is: Normal distribution with
+   $$
+   N\biggl(\mu_1 - \mu_2, (\frac{1}{n} + \frac{1}{m}) * \sigma^2 \biggr)
+   $$
+
+##### g) Test whether μ1 = μ2 based on the samples x and y in (b). What is the value of your test statistics? What is your p-value?
+   
+   _if H0 is true, and we assume 𝜎1 = 𝜎2, then the t.value is: _
+   $$
+   t.value = \frac{(\bar{X} - \bar{Y}) - 0}{\sqrt(\sigma^2(\frac{1}{n} + \frac{1}{m}))}
+   $$
+```{r}
+xbar <- mean(x)
+ybar <- mean(y)
+s.pool <- sqrt((n-1)*var(x) + (m-1)*var(y)) / sqrt(n+m-2)
+t.value <- (xbar - ybar) / (s.pool * sqrt(1/n + 1/m))
+p.value <- 2*pt(abs(t.value), df = n+m-2, lower.tail = FALSE)
+print(p.value)
+
+```
+  $$
+  t-value = -4.849113 \\
+  p-value = 6.206153 * 10^{-6} = 0.00000621 \\
+  $$
+  
+##### h) Following (g) and given that α = 0.05, what is your conclusion?
+```{r}
+alpha = 0.05
+p.value < alpha
+```
+
+  $$
+  P(|T| > |t.value|) = 0.00000621 < 0.05 = \alpha \\  
+  $$
+_thus the p value is less than the level of significant value, we reject H0._
+
+
+## Question 2.
+
+##### a) Test at the α = 0.01 level whether the mean profit of states using the lottery for education is higher than that of states permitting general use. Assume that the variances of the two random variables are equal.
+
+  $$
+  H_0: \mu_x = \mu_y \\
+  H_1: \mu_x > \mu_y \\
+  $$
+  _x: R.V. for Education, y: R.V. for General_ 
+
+```{r}
+x <- c(24,25,28,28,28,29,29,31,31,35,35,35,21)
+y <- c(22,24,27,27,28,29,32,32)
+n <- length(x)
+m <- length(y)
+xbar <- mean(x)
+ybar <- mean(y)
+s.pool <- sqrt((n-1)*var(x) + (m-1)*var(y)) / sqrt(n+m-2)
+t.value <- (xbar - ybar) / (s.pool * sqrt(1/n + 1/m))
+print(t.value)
+p.value <- pt(t.value, df = n+m-2, lower.tail = FALSE)
+print(p.value)
+alpha = 0.01
+p.value < alpha
+```
+_thus the p value is greater than the level of significant value, therefore we fail to reject H0._
+
+
+
+
+##### b) Based on the same data set, use t.test() to calculate your p-value in (a). 
+```{r}
+x <- c(24,25,28,28,28,29,29,31,31,35,35,35,21)
+y <- c(22,24,27,27,28,29,32,32)
+t.test(x, y, alternative = c("greater"), var.equal = TRUE, conf.level = 0.99)
+```
+
+
+
+##### c) Compare the results in (a) and (b). 
+
+  $$
+  p_a = 0.2048884 \\
+  p_b = 0.2049 \\
+  p_a = 0.2048884 = 0.2049 = p_b \\
+  p_a = 0.2048884 > 0.01 = \alpha \\
+  p_b = 0.2049 > 0.01 = \alpha \\
+  $$
+_both methods provides the same p-value, since both p-values are greater than the given level of significant 0.01, therefore, the results in (a) and (b) are both: fail to reject H0. _
+  
+  
+  
+  

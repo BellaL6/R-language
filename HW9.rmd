@@ -1,0 +1,269 @@
+---
+title: "Math 181B - HW9"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+## Question 1.
+##### a) Let θ0 be the population median of Y, Find θ0.
+
+  $$
+  \begin{aligned}
+  f &= e^{-y} \\
+  anti.f &= -e^{-y} \\
+  suppose: lower &= 0 \\
+           upper &= \theta_0 \\
+  set: a &= -e^{-\theta} \\
+  then: a &= 0.5 - e^{0} \\
+          &= 0.5 - 1 \\
+          &= -0.5 \\
+  
+  suppose: lower &= \theta \\
+           upper &= \inf \\
+  then: a &= -e^{\inf} - 0.5 \\
+          &= -0.5 \\
+  
+  so: -e^{-\theta} &= -0.5 \\
+       e^{-\theta} &= 0.5 \\
+       \ln \bigl(e^{-\theta} \bigr) &= \ln(0.5) \\
+       - \theta &= \ln(0.5) \\
+       \theta &= -\ln(0.5) \\
+              &= 0.693147 \\
+  \end{aligned}
+  $$
+  
+```{r}
+(exp.theta <- -logb(0.5))
+data <- c(0.27187, 0.46495, 0.19368, 0.80433, 1.25450, 0.62962, 1.88300, 1.31951, 2.53918, 1.21187,
+          0.95834, 0.49017, 0.87230, 0.88571, 1.41717, 1.75994, 0.60280, 2.19654, 0.00594, 4.11127,
+          0.24130, 0.16473, 0.08178, 1.01424, 0.60511, 0.87973, 0.06127, 0.24758, 0.54407, 0.05267,
+          0.75210, 0.13538, 0.42956, 0.02261, 1.20378, 1.09271, 1.88705, 0.17500, 0.50194, 0.52122,
+          0.02915, 0.27348, 0.08916, 0.72997, 0.37185, 0.06500, 1.47721, 4.02733, 0.64003, 0.05603)
+n <- 50
+diff <- 0.5
+target <- 0
+for (i in 1:n) {
+  act.diff <- abs(data[i] - exp.theta)
+  if (act.diff <= diff) {
+    diff = act.diff
+    target = data[i]
+  }
+}
+(theta0 <- target) 
+
+count.less <- 0
+count.more <- 0
+for (j in 1:n) {
+  if (data[j] < target) {
+    count.less = count.less + 1
+  }
+  else if (data[j] > target) {
+    count.more = count.more + 1
+  }
+}
+count.less
+count.more
+```
+
+
+##### b) Test whether the population median equals θ0 using the sign test.
+  $$
+  H0: \theta = 0.72997 \\
+  H1: \theta \neq 0.72997 \\
+  $$
+  
+```{r}
+library(BSDA)
+SIGN.test(data, md = 0.72997, alternative = "two.sided")
+p.value <- 0.3916
+alpha <- 0.05
+p.value < alpha
+```
+_Since the p.value is 0.3916, which is greater than the level of significant 0.05. Therefore, we fail to reject H0._  
+
+## Question 2.
+  $$
+  \begin{aligned}
+  n &= 22 \\
+  Y_1, ..., Y_{22} \space &form \space N(\mu, 6) \\
+  H0: \mu &= 10 \\
+  H1: \mu &> 10 \\
+  \end{aligned}
+  $$
+##### a) Construct a large-sample sign test having a Type I error probability of 0.05. What will the power of the test be if μ = 11?
+
+**let x be the # of Yi that is greater than theta0.**
+**With using the sign test, to test H0: mu = 10 v.s. H1: mu > 10 at the level of significance alpha = 0.05, we reject H0 if:**
+  $$
+  \begin{aligned}
+  check \space if: z &\geq z_{\alpha} \\\\
+  
+  \alpha &= 0.05 \\
+  z &= \frac{x - \frac{n}{2}}{\sqrt{\frac{n}{4}}}\\
+    &= \frac{x - \frac{22}{2}}{\sqrt{\frac{22}{4}}}\\
+    &= \frac{x - 11}{\sqrt{\frac{11}{2}}}\\
+  z_{\alpha} &= 1.644854\\\\
+  z &\geq z_{\alpha} \\
+  \frac{x - 11}{\sqrt{\frac{11}{2}}} &\geq 1.644854 \\
+  x-11 &\geq 1.644854*\sqrt{\frac{11}{2}} \\
+  x-11 &\geq 3.857525 \\
+  x &\geq 14.85752 \\\\
+  
+  \mu_1 &= 11 \\
+  x &- Binom(22, p_{new}) \\
+  p_{new} &= P(Y_i \geq 10) \\
+          &= 0.6584543 \\
+  E[x] &= n*p \\
+       &= 22(0.6584543) \\
+       &= 14.48599 \\
+  Var[x] &= n*p*(1-p) \\
+         &= 14.48599(1-0.6584543) \\
+         &= 4.947629 \\\\
+  power &= P(reject \space H_0 | H_0 \space is \space false) \\
+        &= P(x \geq 14.85752|\mu_1 = 11) \\
+        &= P(\frac{x - 14.48599}{\sqrt{4.947629}} \geq \frac{14.85752-14.48599}{\sqrt{4.947629}}) \\
+        &= P(Z > 0.1670282) \\
+        &= 0.4336739 \\
+  
+  \end{aligned}
+  $$
+  **power = P(reject H0 when H0 is false)**
+  **power = P(x >= 14.85752 when mu = 11)**
+```{r}
+n <- 22
+(p.x.new <- pnorm(10, mean = 11, sd = sqrt(6), lower.tail = FALSE))
+(mean.x.new <- n*p.x.new) 
+(var.x.new <- n*p.x.new*(1-p.x.new))
+(z <- (14.85752 - mean.x.new)/sqrt(var.x.new))
+(power <- pnorm(z, lower.tail = FALSE))
+```
+  
+
+##### b) Construct a large-sample Wilcoxon test having a Type I error probability of 0.05. What will the power of the test be if μ = 11?
+
+**With using the Wilcoxon test, to test H0: mu = 10 v.s. H1: mu > 10 at the level of significance alpha = 0.05, we reject H0 if:**
+  $$
+  \begin{aligned}
+  check \space if: z &> z_\alpha \\\\
+  
+  \alpha &= 0.05 \\
+  z &= \frac{w - \frac{n(n+1)}{4}}{\sqrt{\frac{n(n+1)(2n+1)}{24}}} \\
+    &= \frac{w - \frac{22(23)}{4}}{\sqrt{\frac{22(23)(45)}{24}}} \\
+    &= \frac{w - 126.5}{30.80179} \\\\
+    
+  z_\alpha &= 1.645 \\
+  \frac{w - 126.5}{30.80179} &> 1.645 \\
+  w - 126.5 &> 50.66894 \\
+  w &> 177.1689 \\\\
+  
+  \mu_1 &= 11 \\
+  w &- Binom(22, p_{new}) \\
+  p_{new} &= P(Y_i \geq 10) \\
+          &= 0.6584543 \\
+  E[w] &= \sum_{j=1}^n E[P(Y_j \geq 10)] * R_j \\
+       &= 0.6584543 * \sum_{j=1}^n R_j \\
+       &= 0.6584543 * \frac{(1+n)*n}{2} \\
+       &= 0.6584543 * \frac{(23)*22}{2} \\
+       &= 166.5889 \\
+  Var[x] &= \sum_{j=1}^n Var[P(Y_j \geq 10)] * R_j^2  \\
+         &= 0.6584543^2 * \frac{n(n+1)(2n+1)}{6} \\
+         &= 0.6584543^2 * \frac{22(23)(45)}{6} \\
+         &= 1645.368 \\\\
+         
+  power &= P(reject \space H_0 | H_0 \space is \space false) \\
+        &= P(w > 177.1689|\mu_1 = 11) \\
+        &= P(\frac{w - 166.5889}{\sqrt{1645.368}} > \frac{177.1689-166.5889 }{\sqrt{1645.368}}) \\
+        &= P(Z > 0.260827) \\
+        &= 0.397113
+  \end{aligned}
+  $$
+```{r}
+n <- 22
+(p.new <- pnorm(10, 11, sqrt(6), lower.tail = FALSE))
+(mean.w.new <- p.new * (n+1)*n/2)
+(var.w.new <- p.new^2 * n*(n+1)*(2*n+1)/6)
+(z <- (177.1689 - mean.w.new)/sqrt(var.w.new))
+(power <- pnorm(z, lower.tail = FALSE))
+```
+  
+
+##### c) Construct a z-test having a Type I error probability of 0.05. What will the power of the test be if μ = 11?
+
+**With using the z-test, to test H0: mu = 10 v.s. H1: mu > 10 at the level of significance alpha = 0.05, we reject H0 if:**
+  $$
+  \begin{aligned}
+  z &\geq z_\alpha \\\\
+  
+  \alpha &= 0.05 \\
+  z &= \frac{\bar X - \mu_0}{\sqrt{\frac{6}{22}}} \\
+    &= \frac{\bar X - 10}{\sqrt{\frac{6}{22}}} \\
+  z_\alpha &= 1.645 \\
+  
+  \frac{\bar X - 10}{\sqrt{\frac{6}{22}}} &\geq 1.645 \\
+  \bar X - 10 &\geq 0.8590732 \\
+  \bar X &\geq 10.8590732 \\\\
+  
+  \mu_1 &= 11 \\
+  power &= P(reject \space H_0 | H_0 \space is \space false) \\
+        &= P(\bar X >= 10.8590732|\mu_1 = 11) \\
+        &= P(\frac{\bar X - 11}{\sqrt{\frac{6}{22}}} \geq \frac{10.8590732-11}{\sqrt{\frac{6}{22}}}) \\
+        &= P(Z \geq -0.2698543) \\
+        &= 0.6063638
+  \end{aligned}
+  $$
+
+  
+  
+```{r}
+(power <- pnorm(-0.2698543, lower.tail = FALSE))
+```
+  
+  
+
+## Question 3.
+##### a) Set up a rejection region for the large-sample sign test for deciding whether or not the 25th percentile of the Y-distribution is equal to 6. Let α = 0.05.
+  $$
+  \begin{aligned}
+  n &= 36 \\
+  Y_i &- unif(0, \theta) \\
+  \alpha &= 0.05 \\\\
+  H_0: \theta_{0.25} &= 6 \\
+  H_1: \theta_{0.25} &\neq 6 \\\\
+  
+  if \space H_0 \space is \space true, &\space then: \\
+  \theta_p: \{_{y=6}^{b=Y_{36}} P(Y_i \geq 6) &\geq 0.75 \\\\
+  X &- Binom(n, 3/4) \\
+  E[X] &= \frac{3n}{4} \\
+  Var[X] &= \frac{3n}{16} \\
+  Z &= \frac{X - \frac{3n}{4}}{\sqrt{\frac{3n}{16}}} -> N(0,1) \\\\
+  \end{aligned}
+  $$
+  
+  _To test H0: theta(0.25) = 6 vs. theta(0.25) != 6 at the alpha=0.05 level of significance, we reject H0 if:_ 
+  $$
+  \begin{aligned}
+  check \space if: z &\geq z_{\alpha/2} \space or \space z \leq -z_{\alpha/2} \\\\
+  
+  z &= \frac{X - \frac{3n}{4}}{\sqrt{\frac{3n}{16}}} \\
+    &= \frac{X - \frac{3(36)}{4}}{\sqrt{\frac{3(36)}{16}}} \\
+    &= \frac{X - 27}{2.598076} \\
+  z_{\alpha/2} &= 1.96 \\\\
+  
+  z &\geq z_{\alpha/2} \\
+  \frac{X - 27}{2.598076} &\geq 1.96 \\
+  X-27 &\geq 5.092229 \\
+  X &\geq 32.09223 \\\\
+  
+  z &\leq-z_{\alpha/2} \\
+  \frac{X - 27}{2.598076} &\leq -1.96 \\
+  X-27 &\leq -5.092229 \\
+  X &\leq 21.90777 \\
+  \end{aligned}
+  $$
+```{r}
+qnorm(0.05, lower.tail = FALSE)
+```
+
+  
+  

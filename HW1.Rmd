@@ -1,0 +1,187 @@
+---
+title: "HW 1 - Math 181B"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+## Question 1:
+
+b) *calculate the probability of Z < 5:*
+```{r}
+p = pnorm(q = 5, mean = 3, sd = sqrt(2), lower.tail = TRUE)
+print(p)
+```
+
+  *x rounded to 3 decimal places:*
+```{r}
+p1 = round(p, digits = 3)
+print(p1)
+```
+
+c) *calculate the probability of (Z ≤ 1.06):* 
+```{r}
+p2 = pnorm(q = 1.06, mean = 0, sd = sqrt(2), lower.tail = TRUE)
+print(p2)
+```
+
+  *calculate the probability of (Z < -2.33):*
+```{r}
+p3 = pnorm(q = -2.33, mean = 0, sd = sqrt(2), lower.tail = TRUE)
+print(p3)
+```
+
+  *calculate the probability of (-2.33 < Z ≤ 1.06):*
+```{r}
+p4 = p2 - p3
+print(p4)
+```
+
+  *x rounded to 3 decimal places:*
+```{r}
+p = round(p4, digits = 3)
+print(p)
+```
+
+## Question 2: 
+
+b) *The marginal distribution of Y:*
+  $$
+  \begin{aligned}
+		f_{Y}(y) & =  \int_0^1 f_{X, Y} (x, y) dx \\
+				 & = \int_0^1 \biggl( \frac{2}{3}(x + 2y) \biggr) dx \\
+				 & = \frac{2}{3} \int_0^1 x dx + \frac{4}{3} y \int_0^1 dx \\
+				 & = \frac{1}{3} \times x^2 \Big\vert_0^1 + \frac{4}{3} y \times x \Big\vert_0^1 \\
+				 & = \frac{1}{3} + \frac{4}{3} y, \quad 0 \leq y \leq 1. 
+	\end{aligned}
+	$$
+
+c) *$E[X]$, $E[Y]$, $Var[X]$, $Var[Y]$:*
+  $$
+  \begin{aligned}
+		E[X] & =  \int_0^1 x \times f_{X} (x) dx \\
+				 & = \int_0^1 x \times \biggl( \frac{2}{3}(x + 1) \biggr) dx \\
+				 & = \frac{2}{3}\int_0^1 (x^2 + x) dx \\ 
+				 & = \frac{2}{3} (\frac{1}{3} x^3 + \frac{1}{2} x^2) \Big\vert_0^1 \\
+				 & = \frac{2}{9} + \frac{1}{3} \\
+				 & = \frac{5}{9}
+	\end{aligned}
+  $$
+  $$
+  \begin{aligned}
+		E[Y] & =  \int_0^1 y \times f_{Y} (y) dy \\
+				 & = \int_0^1 y \times \biggl( \frac{1}{3} + \frac{4}{3} y \biggr) dy \\
+				 & = \frac{1}{3}\int_0^1 (y + 4y^2) dy \\ 
+				 & = \frac{1}{3} (\frac{1}{2} y^2 + \frac{4}{3} y^3) \Big\vert_0^1 \\
+				 & = \frac{1}{6} + \frac{4}{9} \\
+				 & = \frac{11}{18}
+	\end{aligned}
+	$$
+	$$
+	\begin{aligned}
+		E[X^2] & =  \int_0^1 x^2 \times f_{X} (x) dx \\
+				 & = \int_0^1 x^2 \times \biggl( \frac{2}{3}(x + 1) \biggr) dx \\
+				 & = \frac{2}{3}\int_0^1 (x^3 + x^2) dx \\ 
+				 & = \frac{2}{3} (\frac{1}{4} x^4 + \frac{1}{3} x^3) \Big\vert_0^1 \\
+				 & = \frac{1}{6} + \frac{2}{9} \\
+				 & = \frac{7}{18} \\
+    Var[X] & = E[X^2] - (E[X])^2 \\
+           & = \frac{7}{18} - (\frac{5}{9})^2 \\
+           & = \frac{13}{162}
+	\end{aligned}
+	$$
+	$$
+	\begin{aligned}
+		E[Y^2] & =  \int_0^1 y^2 \times f_{Y} (y) dy \\
+				 & = \int_0^1 y^2 \times \biggl( \frac{1}{3} + \frac{4}{3} y \biggr) dy \\
+				 & = \frac{1}{3}\int_0^1 (y^2 + 4y^3) dy \\ 
+				 & = \frac{1}{3} (\frac{1}{3} y^3 + y^4) \Big\vert_0^1 \\
+				 & = \frac{1}{9} + \frac{1}{3} \\
+				 & = \frac{4}{9} \\
+		Var[Y] & = E[Y^2] - (E[Y])^2 \\
+		       & = \frac{4}{9} - (\frac{11}{18})^2 \\
+		       & = \frac{23}{324}
+	\end{aligned}
+	$$
+d) *&Cov(X,Y)&:*
+  $$
+  \begin{aligned}
+		E[XY] & =  \int_0^1 \int_0^1 xy \times f_{X,Y} (x,y) dx dy \\
+				 & = \int_0^1 \int_0^1 xy \times \biggl( \frac{2}{3}(x + 2y) \biggr) dx dy \\
+				 & = \frac{2}{3}\int_0^1 \int_0^1 (x^2y + 2xy^2) dx dy \\ 
+				 & = \frac{2}{3}\int_0^1 (\frac{1}{3}x^3y + x^2y^2) \Big\vert_0^1 dy \\
+				 & = \frac{2}{3}\int_0^1 (\frac{1}{3} y + y^2) dy \\
+				 & = \frac{2}{3} (\frac{1}{6}y^2 + \frac{1}{3}y^3) \Big\vert_0^1 \\
+				 & = \frac{1}{9} + \frac{2}{9} \\
+				 & = \frac{1}{3} \\
+		Cov(X,Y) & = E[XY] - E[X]E[Y] \\
+		         & = \frac{1}{3} - \frac{5}{9} \times \frac{11}{18} \\
+		         & = -\frac{1}{162}
+	\end{aligned}
+  $$
+e) *&Cor(X,Y)&: *
+  $$
+  \begin{aligned}
+		Cor(X,Y) & =  Cov(X,Y) \over (\sqrt(Var[X] \times Var[Y]))  \\
+				 & = -\frac{1}{162} \times \frac{1}{\sqrt(\frac{13\times23}{162\times324})} \\
+				 & = -\frac{1}{162} \times \frac{324}{\sqrt(598)} \\
+				 & = -\frac{2}{\sqrt(598)} \\
+				 & = -\sqrt\frac{2}{299}
+	\end{aligned}
+  $$
+
+
+## Question 3:
+
+a) *choose an arbitrary integer as your own seed:*
+   *generate n = 5 normal random numbers with mean = 2 and sd = 1:*
+```{r}
+set.seed(5)
+RV = rnorm(n = 5, mean = 2, sd = 1)
+print(RV)
+```
+
+  *find your value of ˆμ using your random numbers*
+```{r}
+TRV = sum(RV)
+print(TRV)
+n = 5
+meanEstimator = (1/n) * TRV
+print(meanEstimator)
+```
+
+  *find the difference between ˆμ and the true mean μ*
+```{r}
+meanTrue = 2
+diff = meanEstimator - meanTrue
+print(diff)
+```
+
+b) *estimator of variance of the unknown parameter population mean: *
+$$
+\hat{\sigma^2} = \frac{1}{n} \sum_{i = 1}^n (x_i - \mu)^2.
+$$
+d) *how to estimate true mean more accurately: *
+
+  *given n = 50 with all others are unchanged as part a): *
+```{r}
+set.seed(5)
+RV = rnorm(n = 50, mean = 2, sd = 1)
+print(RV)
+```
+
+  *find your value of ˆμ using your random numbers*
+```{r}
+TRV = sum(RV)
+print(TRV)
+n = 50
+meanEstimator = (1/n) * TRV
+print(meanEstimator)
+```
+
+  *find the difference between ˆμ and the true mean μ*
+```{r}
+meanTrue = 2
+diff = meanEstimator - meanTrue
+print(diff)
+```

@@ -1,0 +1,233 @@
+---
+title: "HW3 - Math 181B"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+
+## Question 1.
+##### a) Test whether the variances of the two sets of weight gains are significantly different. Let α = 0.05.
+  $$
+  H_0: \sigma_1^2 = \sigma_2^2; \\
+  H_1: \sigma_1^2 != \sigma_2^2 \\
+  $$
+```{r}
+x <- c(22.8, 10.2, 20.8, 27.0, 19.2, 9.0, 14.2, 19.8, 14.5, 14.8)
+y <- c(23.5, 31.0, 19.5, 26.2, 26.5, 25.2, 24.5, 23.8, 27.8, 22.0)
+n <- length(x)
+m <- length(y)
+(sq.x <- var(x))
+(sq.y <- var(y))
+(f1 <- min(sq.x/sq.y, sq.y/sq.x))
+(f2 <- max(sq.x/sq.y, sq.y/sq.x))
+p.value <- pf(f1, n-1, m-1, lower = TRUE) + pf(f2, n-1, m-1, lower = FALSE)
+print(p.value)
+alpha = 0.05
+p.value < alpha
+
+```
+_since the p.value is greater than the level of significant, we fail to reject H0, it means we can assume the two unknown variances are equal._
+
+
+
+##### b) Test whether the population means of the two sets of weight gains are significantly different. Let α = 0.05.
+  $$
+  H_0: \mu_1 = \mu_2 \\
+  H_1: \mu_1 != \mu_2 \\
+  $$
+  **case 1: according to part a), since we fail to reject H0, we assume sigma1 = sigma2:**
+```{r}
+x <- c(22.8, 10.2, 20.8, 27.0, 19.2, 9.0, 14.2, 19.8, 14.5, 14.8)
+y <- c(23.5, 31.0, 19.5, 26.2, 26.5, 25.2, 24.5, 23.8, 27.8, 22.0)
+n <- length(x)
+m <- length(y)
+xbar <- mean(x)
+ybar <- mean(y)
+s.pool <- sqrt((n-1)*var(x) + (m-1)*var(y)) / sqrt(n+m-2)
+t.score <- (xbar - ybar) / (s.pool * sqrt(1/n + 1/m))
+p.value <- 2 * pt(abs(t.score), df = n+m-2, lower.tail = FALSE)
+print(p.value)
+alpha = 0.05
+p.value < alpha
+```
+_assume unknown variances are equal, since p.value is less than the level of significant, we reject H0._
+
+  **case 2: not according to part a), we assume sigma1 and sigma2 are unknown and unequal:**
+```{r}
+x <- c(22.8, 10.2, 20.8, 27.0, 19.2, 9.0, 14.2, 19.8, 14.5, 14.8)
+y <- c(23.5, 31.0, 19.5, 26.2, 26.5, 25.2, 24.5, 23.8, 27.8, 22.0)
+n <- length(x)
+m <- length(y)
+xbar <- mean(x)
+ybar <- mean(y)
+(sx.sq <- var(x))
+(sy.sq <- var(y))
+(t.score <- (xbar - ybar) / sqrt(sx.sq/n + sy.sq/m))
+theta <- sx.sq / sy.sq
+nu <- (theta + n/m)^2 / (theta^2 / (n-1) + (n/m)^2 / (m-1))
+p.value <- 2 * pt(abs(t.score), df = nu, lower.tail = FALSE)
+print(p.value)
+alpha = 0.05
+p.value < alpha
+
+
+```
+_assume two unknown variances are not equal, since the p.value is less than the level of significant, we reject H0._
+
+
+
+
+## Question 2.
+##### a) Provide an estimator ˆpS of pS, and what the theoretical expected value and variance of ˆpS?
+  
+  $$
+  \begin{aligned}
+  n & = 91 \\
+  X & = 53 = \sum_{i=1}^n x_i = \sum_{i=1}^{91} x_i \\ 
+  E[X_i] & = p_S \\
+  Var[X_i] & = p_S(1-p_S) \\
+  E[X] & = \sum_{i=1}^{n} E[x_i] = n(p_S) \\
+  Var[X] & = \sum_{i=1}^{n} Var[x_i] = n\biggl(p_S(1-p_S)\biggr) \\
+  \hat{p_S} & = \frac{X}{n} = \frac{53}{91} \\
+  E[\hat{p_S}] & = \frac{1}{n} E[X] = \frac{1}{n} (n*p_S) = p_S \\
+  Var[\hat{p_S}] &= \frac{1}{n^2} Var[X] \\
+                 & = \frac{1}{n^2} *n\biggl(p_S(1-p_S)\biggr) \\
+                 &= \frac{1}{n} \biggl(p_S(1-p_S)\biggr)
+  \end{aligned}
+  $$
+```{r}
+X <- 53
+n <- 91
+pS_hat <- X / n
+print(pS_hat)
+```
+  
+
+##### b) Test H0 : pS = 0.7 against H1 : pS < 0.7. Use the binomial distribution to find your p-value.
+  $$
+  H_0: p_S = 0.7; \\
+  H_1: p_S < 0.7 \\
+  $$
+```{r}
+X <- 53
+n <- 91
+p0 <- 0.7
+p.value.b <- pbinom(X, n, p0, lower.tail = TRUE)
+print(p.value.b)
+alpha <- 0.05
+p.value.b < alpha
+```
+_since p.value is less than the level of significant, we reject H0._
+
+##### c) Repeat b) using an approximate normal distribution to find your p-value. Comment on the difference between b) and c).
+  $$
+  H_0: p_S = 0.7; \\
+  H_1: p_S < 0.7 \\
+  $$
+```{r}
+X <- 53
+n <- 91
+p0 <- 0.7
+pS.hat <- X/n
+var <- p0*(1-p0)/n
+z.score <- (pS.hat - p0) / sqrt(var)
+p.value.n <- pnorm(z.score, mean = 0, sd = 1, lower.tail = TRUE)
+print(p.value.n)
+alpha <- 0.05
+p.value.n < alpha
+diff <- p.value.b - p.value.n
+print(diff)
+```
+_since the p.value is less than the level of significant, we reject H0._
+
+_the difference here is 0.004133, which is pretty small. This difference implies the p-value from an approximate normal distribution is nearly equal to the true p-value from binomial distribution, we can often calculate the p-value of this type of question using either one way. They both work._
+
+
+##### d) Test H0 : pS = pNS against a one-sided H1 : pS < pNS. Let α = 0.01.
+  $$
+  H_0: p_S = p_{NS} \\
+  H_1: p_S < p_{NS} \\
+  $$
+```{r}
+X <- 53
+Y <- 750
+n <- 91
+m <- 1162
+pS_hat <- X/n
+pNS_hat <- Y/m
+(pe <- (X+Y)/(n+m))
+(z.score <- (pS_hat - pNS_hat) / sqrt((1/n)*pe*(1-pe) + (1/m)*pe*(1-pe)))
+p.value <- pnorm(z.score, mean = 0, sd = 1, lower.tail = TRUE)
+print(p.value)
+alpha = 0.01
+p.value < alpha
+```
+_since the p.value is greater than the level of significant, we fail to reject H0._
+
+
+
+## Question 3.
+##### a) Calculate P[(X1,X2,X3,X4) = (3, 7, 15, 25)].
+  
+  $$
+  \begin{aligned} 
+  n &= 50 \\
+  f_{Y}(y) &= 3y^2, 0<y<1. \\
+  X_1 &\in [0,\frac{1}{4}) \\
+  X_2 &\in [\frac{1}{4}, \frac{1}{2}) \\
+  X_3 &\in [\frac{1}{2}, \frac{3}{4}) \\
+  X_4 &\in [\frac{3}{4}, 1] \\\\
+  
+  p_1 &= \int_0^\frac{1}{4} f_{Y} (y) dy \\
+      &= \int_0^\frac{1}{4} 3y^2 dy \\
+      &= y^3 \Big\vert_0^\frac{1}{4} \\
+      &= \frac{1}{64} - 0 = \frac{1}{64} \\\\
+      
+  p_2 &= \int_\frac{1}{4}^\frac{1}{2} 3y^2 dy \\
+      &= y^3 \Big\vert_\frac{1}{4}^\frac{1}{2} \\
+      &= \frac{1}{8} - \frac{1}{64} = \frac{7}{64} \\\\
+      
+  p_3 &= \int_\frac{1}{2}^\frac{3}{4} 3y^2 dy \\
+      &= y^3 \Big\vert_\frac{1}{2}^\frac{3}{4} \\
+      &= \frac{27}{64} - \frac{1}{8} = \frac{19}{64} \\\\
+      
+  p_4 &= \int_\frac{3}{4}^1 3y^2 dy \\
+      &= y^3 \Big\vert_\frac{3}{4}^1 \\ 
+      &= 1 - \frac{27}{64} = \frac{37}{64}\\
+  \end{aligned}
+  $$
+  
+```{r}
+fy <- function(y) {3*y^2} 
+p1 <- as.numeric(integrate(fy, lower = 0, upper = 1/4, abs.tol = 0)[1])
+print(p1)
+p2 <- as.numeric(integrate(fy, lower = 1/4, upper = 1/2)[1])
+print(p2)
+p3 <- as.numeric(integrate(fy, lower = 1/2, upper = 3/4)[1])
+print(p3)
+p4 <- as.numeric(integrate(fy, lower = 3/4, upper = 1)[1])
+print(p4)
+dmultinom(x = c(3,7,15,25), prob = c(p1,p2,p3,p4))
+
+```
+
+
+##### b) Find Var(X3).
+  $$
+  
+  \begin{aligned} 
+  p3 &= 0.296875 \\
+  n &= 50 \\
+  X_3 &= Bin(n, p3) = Bin(50, 0.296875) \\
+  Var[X_3] &= np_3(1-p_3) = 50*0.296875*(1-0.296875) \\
+           &= 10.43701 \\
+  
+  \end{aligned}
+  $$
+```{r}
+n = 50
+var.X <- n*p3*(1-p3)
+print(var.X)
+```
+

@@ -1,0 +1,128 @@
+---
+title: "Math 181B - HW5"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+## Question 1.
+  $$
+  Y_i = \beta_0 + \beta_1 x_i + \epsilon_i \\
+  \epsilon_i ∼ N(0, \sigma^2) \\
+  \epsilon_i \space independent \\
+  \bar Y = \frac{1}{n} \sum_{i=1}^n Y_i \\
+  \bar x = \frac{1}{n} \sum_{i=1}^n x_i \\
+  $$
+  
+##### a) Prove Prove that E( ¯ Y ) = β0 + β1¯x
+  $$
+  \begin{aligned}
+  E[\epsilon_i] &= 0 \\
+  Var[\epsilon_i] &= \sigma^2 \\
+  E[\bar Y] &= E[\frac{1}{n} \sum_{i=1}^n Y_i] \\
+            &= \frac{1}{n} \sum_{i=1}^n E[Y_i] \\
+            &= \frac{1}{n} \sum_{i=1}^n E[\beta_0 + \beta_1 x_i + \epsilon_i] \\
+            &= \frac{1}{n} (n*\beta_0 + \beta_1 \sum_{i=1}^n x_i + n*E[\epsilon_i]) \\
+            &= \beta_0 + \beta_1 * \frac{1}{n} \sum_{i=1}^n x_i + 0 \\
+            &= \beta_0 + \beta_1 \bar x \\
+  \end{aligned}
+  $$
+
+##### b) What is the distribution of ¯ Y ?
+  $$
+  \begin{aligned}
+  Var[\bar Y] &= Var[\frac{1}{n} \sum_{i=1}^n Y_i] \\
+              &= \frac{1}{n^2} \sum_{i=1}^n Var[\beta_0 + \beta_1 x_i + \epsilon_i] \\
+              &=  \frac{1}{n^2} \sum_{i=1}^n Var[\epsilon_i] \\
+              &= \frac{1}{n^2} * n* \sigma^2 \\
+              &= \frac{\sigma^2}{n} \\
+  \bar Y &∼ N(\beta_0 + \beta_1 \bar x, \frac{\sigma^2}{n}) \\
+  \end{aligned}
+  $$
+_Y.bar formed Normal distribution._
+
+
+##### c) What is the distribution of ˆ β1?
+  $$
+  \begin{aligned}
+  \hat \beta_1 &= \frac{\sum_{i=1}^n (x_i - \bar x)(y_i - \bar y)}{\sum_{i=1}^n (x_i - \bar x)^2} \\ 
+  E[\hat \beta_1] &= \beta_1 \\
+  Var[\hat \beta_1] &= \frac{\sigma^2}{\sum_{i=1}^n (x_i - \bar x)^2} \\
+  \hat \beta_1  &∼ N(\beta_1, \frac{\sigma^2}{\sum_{i=1}^n (x_i - \bar x)^2}) \\
+  \end{aligned}
+  $$
+  _therefore, beta1.hat formed the normal distribution._
+  
+
+##### d) Find Cov( ¯ Y , ˆ β1)? Are ¯ Y and ˆ β1 independent? 
+  $$
+  \begin{aligned}
+  let: a_i &= \frac{(x_i - \bar x)}{\sum_{i=1}^n (x_i - \bar x)^2} \\
+                        &= 0 \\
+       E[\epsilon_i] &= 0 \\
+  Cov(\bar Y, \hat \beta_1) &= E[\bar Y \hat\beta_1] - E[\bar Y]E[\hat \beta_1] \\
+                            &= E[\frac{1}{n} \sum_{i=1}^n y_i * \frac{\sum_{i=1}^n (x_i - \bar x)(y_i - \bar y)}{\sum_{i=1}^n (x_i - \bar x)^2}] - (\beta_0 + \beta_1 \bar x)*(\beta_1) \\
+                            &= \frac{1}{n} * E[\sum_{i=1}^n y_i \sum_{j=1}^n a_j(y_j - \bar y)] - (\beta_0\beta_1 + \beta_1^2 \bar x) \\
+                            &= \frac{1}{n} * E[\sum_{i=1}^n y_i (\sum_{j=1}^n a_jy_j - \bar y \sum_{j=1}^n a_j)] - (\beta_0 \beta_1 + \beta_1^2 \bar x) \\
+                            &= \frac{1}{n} * E[\sum_{i=1}^n y_i \sum_{j=1}^n a_j y_j] - (\beta_0 \beta_1 + \beta_1^2 \bar x) \\
+                            &= \frac{1}{n} * \biggl(\sum_{i=1}^n E(\beta_0 + \beta_1 x_i + \epsilon_i) \sum_{j=1}^n E[a_j(\beta_0 + \beta_1 x_j + \epsilon_j)] \biggr) - (\beta_0 \beta_1 + \beta_1^2 \bar x) \\
+                            &= \frac{1}{n} * \biggl(\sum_{i=1}^n (\beta_0 + \beta_1 x_i + E[\epsilon_i]) \sum_{j=1}^n a_j(\beta_0 + \beta_1 x_j + E[\epsilon_j]) \biggr) - (\beta_0 \beta_1 + \beta_1^2 \bar x) \\
+                            &= \frac{1}{n} * \biggl((n \beta_0 + \beta_1 x) \sum_{j=1}^n (a_j \beta_0 + \beta_1 a_j x_j) \biggr) - (\beta_0 \beta_1 + \beta_1^2 \bar x) \\
+                            &= \frac{n \beta_0 + \beta_1 x}{n} * (\beta_1 \sum_{j=1}^n \frac{(x_j - \bar x)x_j}{\sum_{j=1}^n(x_j - \bar x)^2}) - (\beta_0 \beta_1 + \beta_1^2 \bar x) \\ 
+                            &= (\beta_0 + \beta_1 \bar x) * \beta_1 - (\beta_0 \beta_1 + \beta_1^2 \bar x) \\
+                            &= (\beta_0 \beta_1 + \beta_1 ^2 \bar x ) - (\beta_0 \beta_1 + \beta_1^2 \bar x) \\
+                            &= 0 \\
+  \end{aligned}
+  $$
+  _Since the Cov(𝑌¯,𝛽̂ 1) equals to 0, it implies E[𝑌¯,𝛽̂ 1] = E[𝑌¯]*E[𝛽̂ 1]. Therefore, we prove that 𝑌¯ and 𝛽̂  are independent._
+
+
+
+## Question 2.
+##### a) Based on the data set, find ˆ β0 and ˆ β1. (You can use your own R codes or use lm function.)
+```{r}
+x <- c(17.1, 15.8, 15.1, 12.1, 18.4, 17.1, 16.7, 16.5, 15.1, 15.1, 10.5, 13.8, 15.7, 11.9, 10.4, 15.0, 16.0, 17.8)
+y <- c(16.7, 15.2, 14.8, 11.9, 18.3, 16.7, 16.6, 15.9, 15.1, 14.5, 10.4, 13.5, 15.7, 11.6, 10.2, 14.5, 15.8, 17.6)
+
+(lm <- lm(y ~ x))
+
+xbar <- mean(x)
+ybar <- mean(y)
+```
+_beta0.hat = -0.1040, beta1.hat = 0.9881_ 
+
+##### b) Suppose that we observe a new value xnew = 15.0, what is the estimated y?
+```{r}
+beta0.hat <- -0.1040
+beta1.hat <- 0.9881
+x.new <- 15.0
+(y.hat <- beta0.hat + beta1.hat * x.new)
+```
+
+
+##### c) What is the meaning of ˆ β1?
+ _the beta1.hat is the estimator of beta1, which to predict the slope of y.hat. It can also be used to predict whether the scatter plot of x and y is positive associated or negative associated by showing the value is positive or negative._
+ _as increasing beta0.hat by 1 unit, the y.hat will be increased by beta1.hat unit. So beta1.hat is the change of y.hat._  
+
+##### d) Draw a scatter plot for x and the residuals, and discuss whether the linear model is appropriate or not.
+```{r}
+lm.mod <- lm(y ~ x)
+lm.res <- resid(lm.mod)
+print(lm.res)
+plot(x, lm.res, xlab = "x", ylab = "Residuals")
+abline(0,0, col = 2)
+hist(lm.res)
+```
+ _according to the histogram of residuals, we can notice there are the path is not normally distributed and has the fatter tail on the right side. And there's a U-shaped pattern in the residual plot, which is non-random pattern. Therefore, the linear model is not appropriate._   
+
+
+##### e) Suppose we want to test whether β1 = 0. What is your p-value, and what is you conclusion at the significance level 0.05?
+  $$
+  H_0: \beta_1 = 0 \\
+  H_1: \beta_1 != 0 \\
+  \alpha = 0.05 \\
+  $$
+```{r}
+summary(lm.mod)
+```
+_the p-value is less than 2.2*10^-16, which is very small and also less than the level of significant 0.05. Therefore, we reject H0._
