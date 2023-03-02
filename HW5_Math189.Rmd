@@ -1,0 +1,174 @@
+---
+title: "HW5 - Math 189"
+author: "Bella Li, Junyi(John) Xv, Jiaming(Raymond) Liu"
+date: "2023-02-13"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+## Question 1.
+```{r}
+baseball <- read.csv("baseball_5.csv")
+head(baseball, n=10)
+
+## Draw a scatter plot between Hits and Salary
+plot(baseball$Hits, baseball$Salary, pch = 20)
+
+## simple linear model
+simple_model <- lm(Salary ~ Hits, data = baseball)
+summary.lm <- summary(simple_model)
+summary.lm
+
+## estimated regression coefficients
+beta0.hat <- summary.lm$coefficients[1]
+beta1.hat <- summary.lm$coefficients[2]
+
+## estimated standard errors
+SE.beta0 <- summary.lm$coefficients[3]
+SE.beta1 <- summary.lm$coefficients[4]
+
+## fitted line according to the predicted linear curve
+plot(baseball$Hits, baseball$Salary, pch = 20)
+abline(simple_model, col = "red", lwd = 2)
+
+## r-square and RSS
+r.sq <- summary.lm$r.squared
+RSS <- deviance(simple_model)
+
+## report
+mat_simple <- matrix(data = c("beta0.hat", "beta1.hat", 
+                              "SE(beta0)", "SE(beta1)", 
+                              "R-squared", "RSS", 
+                              beta0.hat, beta1.hat, SE.beta0, SE.beta1, r.sq, RSS), 
+               nrow = 6, ncol = 2, byrow = FALSE,
+               dimnames = list(NULL, c("Variables", "result")))
+library(knitr)
+table1 <- kable(mat_simple, format = "simple", caption = NULL)
+cat(table1, sep = "\n")
+```
+
+
+Based on the R^2 value I found, I don't think this line fits the data well.
+
+Because a good fitted line should has the R^2 value that is closed to 1, and likewise a bad fitted line will has the R^2 value that is closed to 0. Since our R^2 = 0.19244, which is under 0.5 R^2 level and is closed to 0. Thus it implied that this line doesn't fit the data well.
+
+
+
+## Question 2.
+```{r}
+## multivariate linear model
+multi_model <- lm(Salary ~ Hits+Walks+PutOuts+CHits, data = baseball)
+summary.lm2 <- summary(multi_model)
+summary.lm2
+RSS1 <- deviance(multi_model)
+
+library(knitr)
+
+## estimated regression coefficients
+mat_Ecoef <- matrix(data = c("beta0.hat", "beta1.hat", "beta2.hat", "beta3.hat", "beta4.hat",
+                             summary.lm2$coefficients[1:5]), 
+               nrow = 5, ncol = 2, byrow = FALSE)
+
+table2 <- kable(mat_Ecoef, format = "simple", caption = NULL)
+cat(table2, sep = "\n")
+
+## standard errors
+mat_SE <- matrix(data = c("SE.beta0", "SE.beta1", "SE.beta2", "SE.beta3", "SE.beta4", 
+                          summary.lm2$coefficients[6:10]), 
+               nrow = 5, ncol = 2, byrow = FALSE)
+
+table3 <- kable(mat_SE, format = "simple", caption = NULL)
+cat(table3, sep = "\n")
+
+## RSS and R-squared
+mat_R <- matrix(data = c("R-squared", "RSS", summary.lm2$r.squared, RSS1),
+               nrow = 2, ncol = 2, byrow = FALSE)
+
+table4 <- kable(mat_R, format = "simple", caption = NULL)
+cat(table4, sep = "\n")
+```
+
+
+$$
+\begin{aligned}
+H_0: \beta_j &= 0 \\
+H_1: \beta_j &\neq 0\ for\ j= 1,2,3,4 \\
+\end{aligned}
+$$
+```{r}
+## t-statistic, p-value and Decision(alpha = 0.05)
+library(knitr)
+
+alpha = 0.05
+Decision <- rep(NA, 4)
+for (i in 1:4) {
+  if (summary.lm2$coefficients[16+i] < alpha) {
+    Decision[i] <- "Reject"
+  }
+  else {
+    Decision[i] <- "fail to reject"
+  }
+}
+
+mat_ME <- matrix(data = c(round(summary.lm2$coefficients[12:15], 4),
+                          summary.lm2$coefficients[17:20], 
+                          Decision),
+               nrow = 3, ncol = 4, byrow = TRUE, 
+               dimnames = list(c("t-statistic", "p-value", "Decision"),
+                               c("bata1.hat", "beta2.hat", "beta3.hat", "beta4.hat")))
+
+table5 <- kable(mat_ME, format = "simple", caption = NULL)
+cat(table5, sep = "\n")
+```
+
+Assume that a significance level alpha = 0.05.
+
+**beta1: the t-statistic takes value 3.177. Since the p-value=0.00169, which is smaller than alpha=0.05. Therefore, we reject the hypothesis.**
+
+**beta2: the t-statistic takes value 2.8565. Since the p-value=0.00463, which is smaller than alpha=0.05. Therefore, we reject the hypothesis.**
+
+**beta3: the t-statistic takes value 3.4462. Since the p-value=0.000664, which is smaller than alpha=0.05. Therefore, we reject the hypothesis.**
+
+**beta4: the t-statistic takes value 9.328. Since the p-value=5.108227e-18, which is smaller than alpha=0.05. Therefore, we reject the hypothesis.**
+
+**Therefore, all marginal effects of coefficients are significant, since each of these estimated regression coefficients is far from 0. That is, each of predictor is important on predicting the response variable 'Salary'.**
+
+## Question 3. 
+```{r}
+## compare model 1 and 2 by their RSS and R-square
+mat_R2 <- matrix(data = c(RSS, RSS1, summary.lm$r.squared, summary.lm2$r.squared),
+               nrow = 2, ncol = 2, byrow = FALSE, 
+               dimnames = list(c("simple linear model", "multivariate linear model"),
+                               c("RSS", "R-squared")))
+
+table6 <- kable(mat_R2, format = "simple", caption = NULL)
+cat(table6, sep = "\n")
+```
+**Since a linear model with the higher R-squared value and the smaller RSS value will be better than other linear models.**
+
+**By comparing two linear model, the Multivariate linear model has the smaller Residual Sum of Squares(RSS) value and has the higher R^2 value. Thus, by observing this comparison result, we conclude that Multivariate linear model is more adequate than the simple linear model. However, the conclusion only according to the comparison of RSS and R-squared is not accurate enough.**
+
+
+
+$$
+\begin{aligned}
+H_0: y_i &= \beta_0 + \beta_1 x_i + \epsilon_i \\
+H_1: y_i &= \beta_0 + \beta_1 x_{1i} + \beta_2 x_{2i} + \beta_3 x_{3i} + \beta_4 x_{4i} + \epsilon_i \\
+\end{aligned}
+$$
+
+
+```{r}
+## Test the model adequacy
+anova(simple_model, multi_model)
+```
+
+**The F-statistic takes value 40.715.**
+
+**Assumed that a significance level alpha = 0.05. Since the p-value < 2.2e-16, which is smaller than 0.05. Therefore, we reject the null hypothesis. That is, we reject the single linear regression model.**
+
+
+## Contribution: 
+
+we worked together in the library and discussing together for the final result.

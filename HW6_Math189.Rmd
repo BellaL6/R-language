@@ -1,0 +1,210 @@
+---
+title: "HW6_Math189"
+author: "Jiayin(Bella) Li, Junyi(John) Xv, Jiaming(Raymond) Liu"
+date: "2023-02-21"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+## Question 1.
+
+**3 variables:**
+
+$X_1 =$ hours studied
+
+$X_2 =$ undergrad GPA
+
+$Y =$ receive an A
+
+**Estimated coefficients:**
+
+$\hat \beta_0 = -6$
+
+$\hat \beta_1 = 0.05$
+
+$\hat \beta_2 = 1$
+
+#### a) Estimate the probability that a student who studies for 40 h and has an undergrad GPA of 3.5 gets an A in the class.
+____
+
+$X_1 = 40, X_2 = 3.5, Y = yes$
+
+We want to find: $\hat Pr(Y=yes|X_1=40,X_2=3.5)$
+
+Then:
+```{r}
+x1 <- 40
+x2 <- 3.5
+y <- 1
+beta_0.hat <- -6
+beta_1.hat <- 0.05
+beta_2.hat <- 1
+expo <- beta_0.hat + beta_1.hat*x1 + beta_2.hat*x2
+p_getA.hat <- exp(expo) / (1+exp(expo))
+sprintf("The estimated probability for this student gets an A is: %f", p_getA.hat)
+```
+
+
+#### b) How many hours would the student in part (a) need to study to have a 50% chance of getting an A in the class?
+____
+
+given that: $\hat Pr(Y=yes|X_1=x_1,X_2=3.5) = 0.5$
+
+Then:
+$$
+\begin{aligned}
+\hat\beta_0 &= -6 \\
+\hat\beta_1 &= 0.05 \\
+\hat\beta_2 &= 1 \\
+Pr(Y=yes|X_1=x_1,X_2=3.5) &= 0.5 \\
+                          &= \frac{e^{-6+0.05(x_1)+1(3.5)}}{1+e^{-6+0.05(x_1)+1(3.5)}}\\
+e^{-6+0.05(x_1)+1(3.5)} &= 0.5\bigg(1+e^{-6+0.05(x_1)+1(3.5)}\bigg) \\
+                        &= 0.5 + 0.5e^{-6+0.05(x_1)+1(3.5)} \\
+(1-0.5)e^{-6+0.05(x_1)+1(3.5)} &= 0.5e^{-6+0.05(x_1)+1(3.5)} = 0.5 \\
+e^{-6+0.05(x_1)+1(3.5)} &= 1 \\
+-6+0.05(x_1)+1(3.5) &= 0.05(x_1) - 2.5 = ln(1) = 0 \\
+0.05x_1 &= 2.5 \\
+x_1 &= 50 \\ 
+\end{aligned}
+$$
+
+Therefore, about 50 hours the student in part (a) would need to study to have a 50% chance of getting an A in the class.  
+
+
+
+
+## Question 2.
+
+```{r}
+library(ISLR)
+data(Weekly)
+head(Weekly)
+```
+
+#### a) Produce some numerical and graphical summaries of the Weekly data. Do there appear to be any patterns?
+
+____
+
+```{r}
+summary(Weekly)
+Weekly$Direction01 = ifelse(Weekly$Direction == "Up", 1, 0)
+pairs(Weekly[-9], pch = 20)
+```
+
+```{r}
+cor(Weekly[-9])
+```
+
+
+
+```{r}
+library(ggplot2)
+ggplot(Weekly, aes(x=Year, y=Volume)) + geom_point()
+
+ library(ggplot2)
+ggplot(Weekly, aes(x=as.factor(Direction01), y=Today)) + geom_boxplot()
+```
+According to the pairwise scatterplot, we can see: only scatterplots of Volume and Year shows the relationship. 
+
+According to the boxplot, we can see: we can see Today and Direction have relatively strong association.
+
+According to the correlation matrix, we can see: only the pairs Volume and Year, Today and Direction have high correlation, which implies their strong association. For other variables, they seems uncorrelated. 
+
+
+#### b) Use the full data set to perform a logistic regression with Direction as the response and the five lag variables plus Volume as covariates/predictors. Use the summary function to print the results. Do any of the predictors appear to be statistically significant? If so, which ones?
+
+____
+
+```{r}
+all.fit <- glm(Direction~Lag1+Lag2+Lag3+Lag4+Lag5+Volume, data=Weekly, family=binomial)
+summary(all.fit)
+```
+
+Assume that the significance level alpha=0.05.
+
+**For Lag1: since Lag1's p-value is 0.1181, which is greater than the significance level 0.05. Therefore, Lag1 appears not to be statistically significant.**
+
+**For Lag2: since Lag2's p-value is 0.0296, which is below the significance level 0.05. Therefore, Lag2 appears to be statistically significant.**
+
+**For Lag3: since Lag3's p-value is 0.5469, which is greater than the significance level 0.05. Therefore, Lag3 appears not to be statistically significant.**
+
+**For Lag4: since Lag4's p-value is 0.2937, which is greater than the significance level 0.05. Therefore, Lag4 appears not to be statistically significant.**
+
+**For Lag5: since Lag5's p-value is 0.5833, which is greater than the significance level 0.05. Therefore, Lag5 appears not to be statistically significant.**
+
+**For Volume: since Volume's p-value is 0.5377, which is greater than the significance level 0.05. Therefore, Volume appears not to be statistically significant.**
+
+**Conclusion: ONLY the predictor 'Lag2' appears to be statistically significant.**
+
+
+
+#### c) Compute the confusion matrix and overall fraction of correct predictions. Explain what the confusion matrix is telling you about the types of mistakes made by logistic regression.
+
+____
+
+$H_0:$ the direction of the $i$-th stock index is Up, for $i=1,2,3,...,500$
+
+$H_1:$ the direction of the $i$-th stock index is Down, for $i=1,2,3,...,500$
+
+```{r}
+## compute the confusion matrix
+n <- dim(Weekly)[1] # sample size
+sprintf("size of Weekly data set: %d", n)
+
+probs <- predict(all.fit, type='response')
+contrasts(Weekly$Direction)
+pred.direction <- ifelse(probs>0.5, "Up", "Down")
+
+true.direction <- Weekly$Direction
+table(pred.direction, true.direction)
+
+## compute the overall fraction of correct predictions
+frac.correct <- mean(pred.direction==true.direction)
+sprintf("the overall fraction of correct predictions is: %f", frac.correct)
+```
+
+A confusion matrix compared the predictions (by logistic regression) to the true Direction statuses for the 1089 weekly percentage returns in the Weekly data set. Elements on the diagonal of the matrix represents S&P 500 stock index whose Direction statuses were correctly predicted, while the off-diagonal elements represent S&P 500 stock index that were misclassified. Since we defined Down to be "positive return" and Up to be "negative return". So Logistic regression made incorrect predictions for 48 stock index which levels Up indicated the market had a negative return on a given week, and for 430 stock index which levels Down indicated that market had a positive return on a given week. 
+
+Since Type I error = reject $H_0$ when $H_0$ is true, Type II error = fail to reject $H_0$ when $H_0$ is false.
+
+Therefore, we have 48 false positives (Type I errors) and 430 false negatives(type II errors).     
+
+
+
+#### d) Now fit the logistic regression model using a training data period from 1990 to 2008, with Lag2 as the only predictor. Compute the confusion matrix and the overall fraction of correct predictions for the held out data (that is, the data from 2009 and 2010).
+
+____
+
+```{r}
+## create a training data set
+training <- subset(Weekly, Year <= 2008)
+test <- subset(Weekly, 2009 <= Year)
+
+## perform the logistic regression model - training data
+Lag2.fit <- glm(Direction~Lag2, data=training, family=binomial)
+summary(Lag2.fit)
+
+## perform the logistic regression model - test data
+Lag2.fit1 <- glm(Direction~Lag2, data=test, family=binomial)
+
+## compute the confusion matrix for test data
+m <- dim(test)[1] # sample size
+
+probs2 <- predict(Lag2.fit, test, type="response")
+contrasts(test$Direction)
+pred.dir <- ifelse(probs2>0.5, "Up", "Down")
+
+true.dir <- test$Direction
+table(pred.dir, true.dir)
+
+## compute the overall fraction of correct predictions for the held out data
+frac.correct1 <- mean(pred.dir==true.dir)
+sprintf("the overall fraction of correct predictions for test data is: %f", frac.correct1)
+```
+
+
+## Contribution: 
+
+we worked together in the library and discussing together for the final result.
+

@@ -1,0 +1,89 @@
+---
+title: "HW4 - Math 189"
+author: "Bella Li, Junyi Xv, Jiaming Liu"
+date: "2023-02-08"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+## Question 1.
+```{r}
+library(ISLR)
+data(Auto)
+mpg01 <- rep(0, length(Auto$mpg))
+auto <- data.frame(mpg01, Auto[,-9])
+Med_mpg <- median(auto$mpg)
+auto$mpg01 <- ifelse(auto$mpg > Med_mpg, 1, 0)
+Med_mpg
+auto$mpg01
+```
+
+
+## Question 2. 
+
+```{r}
+par(mfrow=c(2,3))
+for (i in 3:ncol(auto)) {
+  boxplot(auto[,i] ~ auto$mpg01, xlab = "mpg01", ylab = names(auto)[i])
+}
+cor(auto$mpg01, auto[,3:ncol(auto)])
+```
+
+
+
+**According to these boxplots shown above, the features: cylinders, displacement, horsepower, weight, seem most likely to be useful in predicting mpg01.**
+
+**By comparing with other features, boxplots of those features show more differences between mpg01 = 0 and mpg01 = 1. Moreover, the range of values of those features are relatively more different. Even though the feature "origin" also shows high differences, its range according to the mpg01 values is similar. By comparing their correlation, we can also notice: their correlation values are relatively larger than others and higher than 0.5.**  
+
+
+
+## Question 3.
+```{r}
+set.seed(5)
+
+m <- 300
+n <- nrow(auto)-m
+split <- sample(c(rep(1, m), rep(0, n)))
+training <- auto[split == 1, ]
+test <- auto[split == 0, ]
+dim(training)
+dim(test)
+```
+
+
+## Question 4.
+```{r}
+library(MASS)
+
+## Perform LDA on the training data
+lda.fit <- lda(mpg01 ~ cylinders+displacement+horsepower+weight, data = training)
+
+## predictions of LDA
+prediction_lda <- predict(lda.fit, test)$class
+
+## test error for LDA
+lda_testError <- mean(prediction_lda != test$mpg01)
+
+cat("the test error of performing LDA1 is:", lda_testError)
+```
+
+## Question 5. 
+```{r}
+library(MASS)
+
+## performing QDA on the training data
+qda.fit <- qda(mpg01 ~ cylinders+displacement+horsepower+weight, data = training)
+
+## predictions of QDA
+prediction_qda <- predict(qda.fit, test)$class
+
+## test error for LDA
+qda_testError <- mean(prediction_qda != test$mpg01)
+
+cat("the test error of performing QDA is:", qda_testError)
+```
+
+## Contribution: 
+
+we worked together in the library and came up with all results by discussing.

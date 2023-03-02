@@ -1,0 +1,337 @@
+---
+title: "HW2 - Math 189"
+author: "Bella Li, Jiaming(Raymond) Liu, Junyi(John) Xv"
+date: "2023-01-23"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+## Question 1.
+```{r}
+nutrient <- read.table("nutrient.txt")
+nutrient$V1=NULL
+colnames(nutrient)=c("Calcium", "Iron", "Protein", "Vitamin A", "Vitamin C")
+```
+
+
+##### 1.Calculate sample mean and sample standard deviation of each variable.
+#####
+
+```{r}
+n <- 5
+mean <- rep(NA, n)
+SD <- rep(NA, n)
+mean[1] <- mean(nutrient$Calcium)
+mean[2] <- mean(nutrient$Iron)
+mean[3] <- mean(nutrient$Protein)
+mean[4] <- mean(nutrient$`Vitamin A`)
+mean[5] <- mean(nutrient$`Vitamin C`)
+SD[1] <- sd(nutrient$Calcium)
+SD[2] <- sd(nutrient$Iron)
+SD[3] <- sd(nutrient$Protein)
+SD[4] <- sd(nutrient$`Vitamin A`)
+SD[5] <- sd(nutrient$`Vitamin C`)
+
+dmat <- matrix(data = c(mean, SD), 
+               nrow = 5, ncol = 2, byrow = FALSE, 
+               dimnames = list(c("Calcium", "Iron", "Protein", "Vitamin A", "Vitamin C"), 
+                               c("mean", "standard deviation")))
+
+library(knitr)
+table <- kable(dmat, format = "simple", caption = NULL)
+cat(table, sep = "\n")
+```
+
+##### 2.The recommend intake amount of each nutrient is given in the following table. For each nutrient, apply a univariate t-test to test if the population mean of that variable equals the recommended value. Set the significance level at: alpha = 0.05
+
+_Recommended Intake Amount_ 
+
+_Calcium  Iron  Protein Vitamin A Vitamin C_
+
+_1000mg   15mg   60g     800(mu)g     75mg_
+
+
+a) for random variable "Calcium"
+$$
+\begin{aligned}
+H_0: \mu &= 1000\\ 
+H_1: \mu &\neq 1000\\ 
+\end{aligned}
+$$
+```{r}
+t.test(nutrient$Calcium, mu = 1000)
+```
+
+
+
+b) for random variable "Iron"
+$$
+\begin{aligned}
+H_0: \mu = 15 \\
+H_1: \mu \neq 15 \\
+\end{aligned}
+$$
+```{r}
+t.test(nutrient$Iron, mu = 15)
+```
+
+
+
+c) for random variable "Protein"
+$$
+\begin{aligned}
+H_0: \mu = 60 \\
+H_1: \mu \neq 60 \\ 
+\end{aligned}
+$$
+```{r}
+t.test(nutrient$Protein, mu = 60)
+```
+
+
+
+d) for random variable "Vitamin A"
+$$
+\begin{aligned}
+H_0: \mu = 800 \\
+H_1: \mu \neq 800 \\
+\end{aligned}
+$$
+```{r}
+t.test(nutrient$`Vitamin A`, mu = 800)
+```
+
+
+
+e) for random variable "Vitamin C"
+$$
+\begin{aligned}
+H_0: \mu = 75 \\
+H_1: \mu \neq 75 \\ 
+\end{aligned}
+$$
+```{r}
+t.test(nutrient$`Vitamin C`, mu = 75)
+```
+
+
+
+##### 3. Based on the results you obtained in step 2, how would you interpret your test results? Do you think the US Women meet the recommended nutrient intake amount? If not, what would you suggest to the public?
+#####
+_For Calcium: given that significance level is 0.05, since the p-value is less than 2.2e-16, thus the p-value is less than 0.05. Therefore, we reject H0._
+
+_For Iron: given that significance level is 0.05, since the p-value is less than 2.2e-16, thus the p-value is less than 0.05. Therefore, we reject H0._
+
+_For protein: given that significance level is 0.05, since the p-value is less than 3.3e-07, thus the p-value is less than 0.05. Therefore, we reject H0._
+
+_For Vitamin A: given that significance level is 0.05, since the p-value is 0.5103, thus the p-value is larger than the significance level 0.05. Therefore, we fail to reject H0._
+
+_For Vitamin C: given that significance level is 0.05, since the p-value is 0.1477, thus the p-value is larger than the significance level 0.05. Therefore, we fail to reject H0._
+
+Since we successfully reject the Hypothesis of Calcium, Iron, and Protein, we conclude that women's nutrient intakes of calcium, iron, and protein do not meet the recommend intake. 
+
+According to the result of Calcium, we noticed that the population mean of Calcium is much lower than the expected mean value, and the 95% confidence interval: [595.3201, 652.7784] does not contain the expected value of intake Calcium. Thus we suggest women to take foods that rich in Calcium or if needed, take some Calcium supplement.
+
+According to the result of Iron, we noticed that the population mean of Iron is also much lower than the expected value of mean, and the 95% confidence interval: [10.69715 11.56265] does not contain the expected value of intake Iron. Thus we suggest women to take foods that rich in Iron, and if necessary, women can take some supplement of Iron.  
+
+According to the result of Protein, we noticed that the population mean of Protein is higher than the expected value of mean, and the 95% confidence interval: [63.59235 68.01453] does not contain the expected value of intake Protein. Thus we suggest women should somehow control/limit the daily intake amount of protein, and increase the time of weekly exercises. 
+
+Although women in the US meet the recommended intake amount of Vitamin C and Vitamin A, it does not mean that they can stop intaking them. That is, at the time they change the intake amount of Calcium, Iron and Protein, they need to keep the habit of intaking Vitamin A and C as usually.    
+
+
+## Question 2. 
+```{r}
+multiple <- read.table("multiple.txt")
+multiple
+```
+
+##### 1. Perform multiple testing to the population mean vector to test if it equals to a vector whose elements are all zeros. Set the significance level at: alpha = 0.1
+
+$$
+\begin{aligned}
+H_0: \mu_1=0,\ ...\ \mu_{50}=0 \\
+H_1: \mu_1\neq0,\ ...\ \mu_{50}\neq0 \\
+\end{aligned}
+$$
+
+```{r}
+## combination of t-test for each variable
+alpha <- 0.1
+n <- nrow(multiple)
+h0 <- rep(c(2, 0), times=c(10, n-10))
+t_test <- function(x){
+  p_val <- t.test(x, mu = 0, conf.level=1-alpha)$p.value
+  return(p_val < alpha)
+}
+reject_H0 <- apply(multiple,2, t_test)
+reject_H0
+num_rej <- 0
+for (i in 1:50) {
+  if (reject_H0[i] == TRUE) {
+    num_rej = num_rej + 1
+  }
+}
+paste("total # of rejection is:", num_rej)
+```
+_By computing the univariate t-test for each variable, given the significance level is 0.1, only the p-value of variable 'V1' to 'V10', 'V20', 'V32', 'V40', and 'V44' are less than the significance level 0.1. Even though other variables are larger than 0.1, the Alternate Hypothesis is saying that: at least one population mean of a variable is not equal to 0. Therefore, we reject H0._
+
+##### 2. Based on the test results in step 1, calculate the following quantities: number of type I errors, FWER and FDP.
+
+a) \# of Type I errors = \# of variables that (reject H0 when H0 is true) = \# of variables that (reject H0 when mu_i = 0)
+
+Given that: the first 10 variables have mean = 2, and the rest 40 variables have mean = 0.
+
+According to the multiple t.test result above, we correctly rejected H0 for variables V1 to V10.
+
+Therefore, we rejected 14 Hypotheses: 10 are correct and 4 are Type I errors.
+
+Conclusion: There are V=4 Type I errors(false rejection). Hence there are R=14 total rejection. 
+
+
+b) FDP: 
+```{r}
+V <- 4  ## false rejection
+R <- 14 ## total rejection & R > 0
+FDP <- V/R
+FDP
+```
+
+
+c) FWER: 
+knowing that: V=4>0, satisfy to calculate the FWER.
+```{r}
+n <- 50
+alpha <- 0.1
+FWER <- rep(NA, n)
+for (i in 1:n) {
+  FWER[i] <- 1-(1-alpha)^i
+}
+FWER_mat <- matrix(data = c(c(1:n), FWER), ncol = 2, byrow = FALSE, 
+               dimnames = list(NULL, c("n", "FWER")))
+library(knitr)
+FWER_table <- kable(FWER_mat, format = "simple", align = "l", caption = NULL)
+cat(FWER_table, sep = "\n")
+```
+
+
+##### 3. Redo the multiple testing in step 1 with Bonferroni correction(set alpha = 0.1). Calculate the FWER of your new test results.
+#####
+Bonferroni correction has the significance level for each individual test at alpha/m, for alpha = initial significance level, m = \# of H0 = \# of variables
+
+$$
+\begin{aligned}
+H_0: \mu_1=0,\ ...\ \mu_{50}=0 \\
+H_1: \mu_1\neq0,\ ...\ \mu_{50}\neq0 \\
+\end{aligned}
+$$
+
+a) Redo the multiple testing in step 1 with Bonferroni correction: 
+```{r}
+## combination of t-test for each variable (with Bonferroni correction)
+m <- 50
+alpha <- 0.1
+alpha_B <- alpha/m
+rej_var <- rep(NULL, 14)
+reject_B <- function(y) {
+  return(t.test(y, mean = 0, conf.level = 1-alpha_B)$p.value)
+}
+t.test_B <- apply(multiple, 2, match.fun(reject_B))
+t.test_B
+rej_B = 0
+j = 1
+for (i in 1:length(t.test_B)) {
+  if (t.test_B[i] < alpha_B) {
+    rej_var[j] <- i
+    rej_B = rej_B + 1
+    j = j+1
+  }
+}
+cat("variables with rejected H0: ", names(multiple)[rej_var], "\n")
+paste("total # of rejection is:", rej_B)
+```
+b) FDP
+```{r}
+R <- 10 ## total rejection
+V <- 0  ## false rejection
+FDP_B <- V/R
+sprintf("FDP with Bonferroni correction: %g", FDP_B)
+```
+
+
+c) Calculate the FWER 
+```{r}
+FWER_B <- rep(NA, m)
+for (i in 1:m) {
+  FWER_B[i] <- 1-(1-alpha_B)^i
+}
+FWER_Bmat <- matrix(data = c(c(1:m), FWER_B), ncol = 2, byrow = FALSE, 
+               dimnames = list(NULL, c("n", "FWER_Bonferroni")))
+library(knitr)
+FWER_Btable <- kable(FWER_Bmat, format = "simple", align = "l", caption = NULL)
+cat(FWER_Btable, sep = "\n")
+```
+
+
+##### 4. Redo the multiple testing in step 1 with BH procedure (set alpha = 0.1). Calculate the FDP and FWER of your new test results. How does the results compared with the ones you obtained in step 1 and step 3?
+#####
+```{r}
+m <- length(multiple)
+alpha <- 0.1
+p_value <- apply(multiple, 2, function(x) t.test(x, mu=0,conf.level=1-alpha)$p.value)
+
+bh_rej <- function(m, p_value, alpha) 
+{
+  l <- alpha*c(1:m)/m
+  sort_p <- sort(p_value)
+  set <- which(sort_p<=l)
+  if( length(set)==0){
+    rej <- set
+    rej_pv <- set
+  } else{
+    threshold <- sort_p[max(set)]
+    rej <- which(p_value <= threshold)
+    rej_pv <- p_value[rej]
+  }
+  outlist<-list(pvalue=rej_pv, rej=rej, alpha=threshold)
+  return(outlist)
+}
+bh_test <- bh_rej(m, p_value, alpha)
+cat("variables with rejected H0:", names(multiple)[bh_test$rej], "\n")
+R <- length(bh_test$rej)  ## total rejection 
+V <- 0                    ## false rejection 
+FDP_bh <- V/R
+sprintf("FDP with BH procedure: %g", FDP_bh)
+
+alpha_bh <- unname(bh_test$alpha)
+FWER_bh <- numeric(m)
+for (i in 1:m){
+  FWER_bh[i] <- 1-(1-alpha_bh)^i
+}
+FWER_bh_mat <- matrix(data = c(c(1:m), FWER_bh), ncol = 2, byrow = FALSE,
+               dimnames = list(NULL, c("n", "FWER_BH")))
+library(knitr)
+FWER_bh_table <- kable(FWER_bh_mat, format = "simple", align = "l", caption = NULL)
+cat(FWER_bh_table, sep = "\n")
+```
+
+```{r}
+## compare FDP and FWER value with the one obtained in step 2 and step 3:
+comp <- matrix(data = c(0.2857143, 0.9948462, 0, 0.0952532, 0, 0), 
+                   nrow = 3, ncol = 2, byrow = TRUE, 
+                   dimnames = list(c("initial", "Bonferroni Correction", "BH Procedure"), 
+                                   c("FDP", "FWER")))
+comp
+```
+
+By comparing with the result processed by multiple testing in step 2, using multiple testing with BH procedure can minimize the probability of FWER and FDP. Since the probability of FWER in step 2 is higher than the significance level alpha and is close to 1 at n=50, which the simple multiple testing is easier to increase the probability of committing a Type-I error when all Hypothesis are true. Since the number of variables in this data set is respectively large, using multiple testing with BH procedure is suggested. In the comparison, we observe that multiple testing with BH procedure was successfully minimized the value of FWER and FDP to 0. 
+
+By comparing with the result processed by multiple testing with Bonferroni correction in step 3, both multiple testing with Bonferroni correction and with BH procedure have the contribution on minimizing the FDP, which both of them in this case reduced the number of Type-I error to 0. However, the multiple testing with BH procedure did a better job than the multiple testing with Bonferroni correction on minimizing the FWER value. While the value of FWER in step 3 tends to increase as the number of variables increased and finally ended at alpha=0.1, the value of FWER in step 4 remains 0 overtime. Thus using multiple testing with BH procedure is more suggested.  
+
+By comparing the multiple testing in step 2 and step 3, although the multiple testing with Bonferroni correction can shrink the probability of FWER from max=0.99485=1 to max=0.095=alpha,the multiple testing with BH procedure has greater effect on controlling FWER and thus FDP in this case.     
+
+With the chart shown above, overall we can see: both Bonferroni correction and BH Procedure can minimize the value of FDP and FWER, but BH procedure has the maximum effect (or higher power) on minimizing the FWER value in this case, which BH procedure minimizes the most chance of having more Type-I errors for us.  
+
+
+## Contribution: 
+we assigned each group member 2 questions from Problem 1 to Problem 2 part.3. And then we discussed each question together to make sure every question was correct (or made sense) to us. Thus we discussed and worked on the last question(2.4). Overall, everyone contributed equally distributed. 

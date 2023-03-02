@@ -1,0 +1,357 @@
+---
+title: "HW3_Math189"
+author: "Bella Li, Jiaming(Raymond) Liu, Junyi(John) Xv"
+date: "2023-01-30"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+## Question 1. 
+```{r}
+water <- data.frame(data = c(0.43, 0.266, 0.567, 0.531, 0.707, 
+                             0.716, 0.651, 0.589, 0.469, 0.723, 
+                             0.415, 0.238, 0.39, 0.41, 0.605, 
+                             0.609, 0.632, 0.523, 0.411, 0.612), 
+                    class = rep(c("bottom", "surface"), each = 10))
+
+water
+```
+
+##### 1. Test the null and alternative hypotheses: 
+$$
+\begin{aligned}
+H0 : \mu1 = \mu2 \\
+H1 : \mu1 \neq \mu2 \\
+\end{aligned}
+$$
+
+```{r}
+bottom <- water$data[1:10]
+surface <- water$data[11:20]
+t.test(bottom, surface, alternative = "two.sided", paired = TRUE, conf.level = 0.95)
+```
+_assume the level of significant is alpha = 0.05. According to the paired t-test, since the p.value is 0.0008911, which is greater than 0.05. Therefore, we reject H0. And since we reject H0, it means that the zinc concentration in bottom water and in surface water is different._
+
+
+## Question 2.
+```{r}
+library("HSAUR3")
+data("pottery")
+library(knitr)
+pottery_new <- data.frame(pottery)
+pottery_new <- pottery_new[-34:-35,]
+pottery_new
+```
+
+####
+##### 1. Decompose the problem into multiple hypotheses testing: for k = 1,...,9, consider the null H0_(k) : mu_1k = mu_2k = mu_4k = mu_5k. Calculate F-statistics F_(k) (k = 1,...,9) for these nine hypotheses.
+
+
+```{r}
+## First, find the F Critical value 
+
+g <- 4   ## # of groups
+N <- 43  ## # of observations
+alpha <- 0.05
+df_tr <- g-1
+df_res <- N-g
+F_value <- qf(p = alpha, df1 = df_tr, df2 = df_res, lower.tail = FALSE)
+```
+
+
+####
+a) for chemical concentration "Al2O3":
+$$
+\begin{aligned}
+H_0^{k=1} &: \mu_{11} = \mu_{21} = \mu_{41} = \mu_{51} \\
+H_1^{k=1} &: \mu_{i1} \neq \mu_{j1}\ for\ at\ least\ one\ pair\ i\ and\ j \\ 
+\end{aligned}
+$$
+
+```{r}
+## ANOVA test for the 1st Chemical concentration: Al2O3
+aov.Al2O3 <- aov(pottery_new$Al2O3 ~ pottery_new$kiln)
+result1 <- summary(aov.Al2O3)
+result1
+result1[[1]]$`F value`[1] > F_value
+```
+_Since the critical F value = 2.845, which the F statistics value=26 is much greater than 2.845. Moreover, assume the level of significant is alpha = 0.05. Since the p.value is 2.08e-09, which is much less than 0.05. Therefore, we reject H0 for the variable [Al2O3]. Thus, there are at least one sites have significant differences on population mean of Al2O3 concentration._
+
+
+####
+b) for chemical concentration "Fe2O3":
+$$
+\begin{aligned}
+H_0^{k=2} &: \mu_{12} = \mu_{22} = \mu_{42} = \mu_{52} \\
+H_1^{k=2} &: \mu_{i2} \neq \mu_{j2}\ for\ at\ least\ one\ pair\ i\ and\ j \\ 
+\end{aligned}
+$$
+```{r}
+## ANOVA test for the 2nd Chemical concentration: Fe203
+aov.Fe2O3 <- aov(pottery_new$Fe2O3 ~ pottery_new$kiln)
+result2 <- summary(aov.Fe2O3)
+result2
+result2[[1]]$`F value`[1] > F_value
+```
+_Since the critical F value = 2.845, which the F statistics value=154.3 is much greater than 2.845. Moreover, assume the level of significant is alpha = 0.05. Since the p.value is <2e-16, which is much less than 0.05. Therefore, we reject H0 for the variable [Fe2O3]. Thus, there is some significant differences between at least one pair of sites on population mean of Fe2O3 concentration._
+
+
+####
+c) for chemical concentration "MgO":
+$$
+\begin{aligned}
+H_0^{k=3} &: \mu_{13} = \mu_{23} = \mu_{43} = \mu_{53} \\
+H_1^{k=3} &: \mu_{i3} \neq \mu_{j3}\ for\ at\ least\ one\ pair\ i\ and\ j \\ 
+\end{aligned}
+$$
+```{r}
+## ANOVA test for the 3rd Chemical concentration: MgO
+aov.MgO <- aov(pottery_new$MgO ~ pottery_new$kiln)
+result3 <- summary(aov.MgO)
+result3
+result3[[1]]$`F value`[1] > F_value
+```
+_Since the critical F value = 2.845, which the F statistics value=97.77 is much greater than 2.845. Moreover, assume the level of significant is alpha = 0.05. Since the p.value is <2e-16, which is much less than 0.05. Therefore, we reject H0 for the variable[MgO]. Thus, there are at least one site have significant differences on population mean of MgO concentration._
+
+
+####
+d) for chemical concentration "CaO":
+$$
+\begin{aligned}
+H_0^{k=4} &: \mu_{14} = \mu_{24} = \mu_{44} = \mu_{54} \\
+H_1^{k=4} &: \mu_{i4} \neq \mu_{j4}\ for\ at\ least\ one\ pair\ i\ and\ j \\ 
+\end{aligned}
+$$
+```{r}
+## ANOVA test for the 4th Chemical concentration: CaO
+aov.CaO <- aov(pottery_new$CaO ~ pottery_new$kiln)
+result4 <- summary(aov.CaO)
+result4
+result4[[1]]$`F value`[1] > F_value
+```
+_Since the critical F value = 2.845, which the F statistics value=53.5 is much greater than 2.845. Moreover, assume the level of significant is alpha = 0.05. Since the p.value is 6.88e-14, which is much less than 0.05. Therefore, we reject H0 for the variable[CaO]. Thus, there is some significant differences between at least one site on population mean of CaO concentration._
+
+
+####
+e) for chemical concentration "Na2O":
+$$
+\begin{aligned}
+H_0^{k=5} &: \mu_{15} = \mu_{25} = \mu_{45} = \mu_{55} \\
+H_1^{k=5} &: \mu_{i5} \neq \mu_{j5}\ for\ at\ least\ one\ pair\ i\ and\ j \\ 
+\end{aligned}
+$$
+```{r}
+## ANOVA test for the 5th Chemical concentration: Na2O
+aov.Na2O <- aov(pottery_new$Na2O ~ pottery_new$kiln)
+result5 <- summary(aov.Na2O)
+result5
+result5[[1]]$`F value`[1] > F_value
+```
+_Since the critical F value = 2.845, which the F statistics value=10.46 is much greater than 2.845. Moreover, assume the level of significant is alpha = 0.05. Since the p.value is 3.48e-05, which is much less than 0.05. Therefore, we reject H0 for the variable[Na2O]. Thus, there is at least one site have significant differences on population mean of Na2O concentration._
+
+
+####
+f) for chemical concentration "K2O":
+$$
+\begin{aligned}
+H_0^{k=6} &: \mu_{16} = \mu_{26} = \mu_{46} = \mu_{56} \\
+H_1^{k=6} &: \mu_{i6} \neq \mu_{j6}\ for\ at\ least\ one\ pair\ i\ and\ j \\ 
+\end{aligned}
+$$
+```{r}
+## ANOVA test for the 6th Chemical concentration: K2O
+aov.K2O <- aov(pottery_new$K2O ~ pottery_new$kiln)
+result6 <- summary(aov.K2O)
+result6
+result6[[1]]$`F value`[1] > F_value
+```
+_Since the critical F value = 2.845, which the F statistics value=81.76 is much greater than 2.845. Moreover, assume the level of significant is alpha = 0.05. Since the p.value is <2e-16, which is much less than 0.05. Therefore, we reject H0 for the variable [K2O]. Thus, there's some significant differences between at least one site on population mean of K2O concentration._
+
+
+####
+g) for chemical concentration "TiO2":
+$$
+\begin{aligned}
+H_0^{k=7} &: \mu_{17} = \mu_{27} = \mu_{47} = \mu_{57} \\
+H_1^{k=7} &: \mu_{i7} \neq \mu_{j7}\ for\ at\ least\ one\ pair\ i\ and\ j \\ 
+\end{aligned}
+$$
+```{r}
+## ANOVA test for the 7th Chemical concentration: TiO2
+aov.TiO2 <- aov(pottery_new$TiO2 ~ pottery_new$kiln)
+result7 <- summary(aov.TiO2)
+result7
+result7[[1]]$`F value`[1] > F_value
+```
+_Since the critical F value = 2.845, which the F statistics value=14.66 is much greater than 2.845. Moreover, assume the level of significant is alpha = 0.05. Since the p.value is 1.52e-06, which is much less than 0.05. Therefore, we reject H0 for the variable [TiO2]. Thus, there is at least one site have significant difference on population mean of TiO2 concentration._
+
+
+####
+h) for chemical concentration "MnO":
+$$
+\begin{aligned}
+H_0^{k=8} &: \mu_{18} = \mu_{28} = \mu_{48} = \mu_{58} \\
+H_1^{k=8} &: \mu_{i8} \neq \mu_{j8}\ for\ at\ least\ one\ pair\ i\ and\ j \\ 
+\end{aligned}
+$$
+```{r}
+## ANOVA test for the 8th Chemical concentration: MnO
+aov.MnO <- aov(pottery_new$MnO ~ pottery_new$kiln)
+result8 <- summary(aov.MnO)
+result8
+result8[[1]]$`F value`[1] > F_value
+```
+_Since the critical F value = 2.845, which the F statistics value=52.76 is much greater than 2.845. Moreover, assume the level of significant is alpha = 0.05. Since the p.value is 8.56e-14, which is much less than 0.05. Therefore, we reject H0 for the variable [MnO]. Thus, there's some significant differences between at least one site on population mean of MnO concentration._
+
+
+####
+i) for chemical concentration "BaO":
+$$
+\begin{aligned}
+H_0^{k=9} &: \mu_{19} = \mu_{29} = \mu_{49} = \mu_{59} \\
+H_1^{k=9} &: \mu_{i9} \neq \mu_{j9}\ for\ at\ least\ one\ pair\ i\ and\ j \\ 
+\end{aligned}
+$$
+```{r}
+## ANOVA test for the 9th Chemical concentration: BaO
+aov.BaO <- aov(pottery_new$BaO ~ pottery_new$kiln)
+result9 <- summary(aov.BaO)
+result9
+result9[[1]]$`F value`[1] > F_value
+```
+_Since the critical F value = 2.845, which the F statistics value=0.459 is much smaller than 2.845. Moreover, assume the level of significant is alpha = 0.05. Since the p.value is 0.712, which is much greater than 0.05. Therefore, we fail to reject H0 for the variable [BaO]. Thus, there's no significant different between each site on the population mean of BaO concentration._
+
+
+####
+##### 2. apply the Bonferroni correction method to test: 
+
+a) find the F Critical value 
+```{r}
+g <- 4   ## # of groups
+N <- 43  ## # of observations
+m <- 9   ## # of variables
+alpha <- 0.05
+alpha_B <- alpha/m
+df_tr <- g-1
+df_res <- N-g
+F_valueB <- qf(p = alpha_B, df1 = df_tr, df2 = df_res, lower.tail = FALSE)
+F_valueB
+```
+
+####
+b) Null Hypothesis vs. Alternative Hypothesis 
+$$
+\begin{aligned}
+H_0 &: \mu_{1} = \mu_{2} = \mu_{4} = \mu_{5} \\
+H_1 &: \mu_{ik} \neq \mu_{jk}\ for\ at\ least\ one\ pair\ i\ \neq j\ and\ at\ least\ one\ k \\ 
+\end{aligned}
+$$
+
+
+
+####
+c) Calculate F-value using Multivariate ANOVA Test:
+```{r}
+multi_aov <- manova(as.matrix(pottery_new[,1:9]) ~ kiln, data = pottery_new)
+summary(multi_aov)
+```
+
+####
+d) summary of each variable's ANOVA Test, to see the detail of which differ:
+```{r}
+uni_result <- summary.aov(multi_aov)
+uni_result
+```
+
+####
+e) Table for testing results of every variables: 
+```{r}
+F_valB <- rep(NA, 9)
+Decision <- rep(NA, 9)
+P_valB <- rep(NA, 9)
+for (i in 1:9) {
+  P_valB[i] = uni_result[[i]]$`Pr(>F)`[1]
+  F_valB[i] = uni_result[[i]]$`F value`[1]
+  if (F_valB[i] > F_valueB) {
+    Decision[i] = "Reject"
+  }
+  else {
+    Decision[i] = "fail to reject"
+  }
+}
+Element <- names(pottery_new)[1:9]
+BC_matrix <- matrix(data = c(Element, F_valB, P_valB, Decision), 
+               nrow = 9, ncol = 4, byrow = FALSE, 
+               dimnames = list(NULL, 
+                               c("Element","F statistic", "P-value", "Decision")))
+library(knitr)
+BC_table <- kable(BC_matrix, format = "simple", caption = NULL)
+sprintf("the critical F-value is: %f", F_valueB)
+cat(BC_table, sep = "\n")
+```
+According to the listing table above, we can see: the variable [BaO] has the F-value=0.459, which is smaller than the critical value of F=4.892638. Thus we fail to reject H0 for [BaO]. Therefore, after applying the Bonferroni correction method, there's still no significant difference between each site on the population mean of [BaO] chemical concentration. 
+
+However, Except [BaO], all other variables: [Al2O3, Fe2O3, MgO, CaO, Na2O, K2O, TiO2, MnO], after applying the Bonferroni correction method, still have the F-value that is much greater than the critical value of F=4.892638. Thus we reject H0 for those variables. That way, we conclude: Except [BaO], each variable has significant differences between at least one site on their population mean. 
+
+
+####
+##### 3. apply the Benjamini-Hochberg method, with controlling FDR at alpha = 0.05
+###
+
+a) state the Null Hypothesis and Alternate Hypothesis: 
+$$
+\begin{aligned}
+H_0^{k} &: \mu_{1k} = \mu_{2k} = \mu_{4k} = \mu_{5k} \ for\ k \in \{1,2, ..., 9\} \\
+H_1^{k} &: \mu_{ik} \neq \mu_{jk}\ for\ at\ least\ one\ pair\ i\ and\ j\ in\ group\ k\\ 
+\end{aligned}
+$$
+
+b) apply the Benjamini-Hochberg method to test: 
+```{r}
+m <- 9
+alpha <- 0.05
+
+## using manova() this time due to "test H0 simultaneously" 
+## summarize the result of ANOVA test by individual variables 
+result <- summary.aov(manova(as.matrix(pottery_new[,1:9]) ~ kiln, data = pottery_new))
+
+## listing p-value of every variable gets from manova() test
+p_valBH <- rep(NA, m)
+for (i in 1:m) {
+  p_valBH[i] = result[[i]]$`Pr(>F)`[1]
+}
+
+## Benjamini-Hochberg method 
+bh_rej <- function(m, p_value, alpha) 
+{
+  l <- alpha*c(1:m)/m
+  sort_p <- sort(p_value)
+  set <- which(sort_p<=l)
+  if( length(set)==0){
+    rej <- set
+    fail_rej <- set
+    rej_pv <- set
+  } else{
+    threshold <- sort_p[max(set)]
+    rej <- which(p_value <= threshold)
+    fail_rej <- which(p_value > threshold)
+    rej_pv <- p_value[rej]
+  }
+  outlist<-list(pvalue=rej_pv, rej=rej, fail_rej=fail_rej, alpha=threshold)
+  return(outlist)
+}
+bh_test <- bh_rej(m, p_valBH, alpha)
+
+## conclusion after BH method
+cat("variables with rejected H0:", names(pottery_new)[bh_test$rej], "\n")
+cat("variable with failed to reject H0:", names(pottery_new)[bh_test$fail_rej], "\n")
+```
+After applying the Benjamini-Hochberg method, we conclude that: there are 8 out of 9 variables have the rejected H0, which are: [Al2O3, Fe2O3, MgO, CaO, Na2O, K2O, TiO2, MnO]. Therefore, each of these eight variables has significant differences between at least one pair of sites on their population mean of concentration. 
+
+Moreover, since the conclusion shows that: only the last variable [BaO] fail to reject H0. Thus, there is no significant difference between every pair of sites on their population mean of concentration. 
+
+
+## Contribution 
+####
+we assigned each group member 1 questions from Problem 1 to Problem 2 part.3 (exclude part.2), and together for P2.part.2. And then we discussed each question together to make sure every question was correct (or made sense) to us. Overall, everyone contributed equally distributed.

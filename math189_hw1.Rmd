@@ -1,0 +1,71 @@
+---
+title: "Homework 1"
+output:
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load data
+```{r}
+mtcars <- read.csv(file='mtcars.csv')
+rownames(mtcars)<- mtcars$model
+mtcars$model<-NULL
+head(mtcars)
+```
+## Question 1
+```{r}
+sapply(mtcars, mean) # sample mean
+sapply(mtcars, var) # sample variance
+```
+
+## Question 2
+```{r}
+cov(mtcars) # covariance matrix
+cor(mtcars) # correlation matrix
+```
+### Similarity
+1. Both the variance-covariance matrix and correlation matrix are symmetric matrix. That is, each value in a row is the same to each value in the corresponding column
+2. Positive covariance or correlation indicates positive association.
+3. Negative covariance or correlation indicates negative association.
+
+### Difference
+1. Variance-covariance matrix can only tell whether the relationship between two variables are positive or negative. It cannot tell the accurate relationship.
+2. For correlation matrix, correlation values are normalized within in the range of [-1, 1], by which the strength of the association between two variables is quantified by the magnitude of the correlation.
+3. Magnitude of the covariance value in the variance-covariance matrix implies the spread of the values.
+
+### Interpretation
+1. "mpg" and "wt" have the strongest negative association.
+2. "cyl" and "disp" have the strongest positive association.
+3. Because the covariance between disp or hp with other variables are significantly larger than other covariance values, disp and hp have a larger range of values.
+4. No variable has a positive or negative relationship with all other variables.
+
+
+## Question 3
+```{r}
+plot(mtcars$wt, mtcars$mpg,
+     main="Car Weight vs. Miles Per Gallon", xlab="Weight", ylab="MPG", pch=16)
+```
+
+## Question 4
+
+```{r}
+plot(mtcars$wt, mtcars$mpg, col=mtcars$cyl,main="Relationship between wt and mpg under different cyl", xlab="Weight", ylab="Miles Per Gallon", pch=16)
+legend("topright", legend = c(sort(unique(mtcars$cyl))), fill = c("deepskyblue", "violet", "gray"), title='cyl')
+mtcars_4 <- mtcars[mtcars$cyl == 4,]
+abline(lm(mtcars_4$mpg ~ mtcars_4$wt), col="deepskyblue")
+mtcars_6 <- mtcars[mtcars$cyl == 6,]
+abline(lm(mtcars_6$mpg ~ mtcars_6$wt), col="violet")
+mtcars_8 <- mtcars[mtcars$cyl == 8,]
+abline(lm(mtcars_8$mpg ~ mtcars_8$wt), col="gray")
+```
+
+## Question 5
+```{r}
+pairs(mtcars, cex = 0.5)
+```
+
+## Question 6
+From the scatter plot in Question 4, by categorizing points based on different numbers of cylinders, we observe that miles per gallon and weight keeps a negative correlation regardless of the number of cylinders. Although the best fit lines draw under each number of cylinders separately show some slight differences in the relationship between miles per gallon and weight, such small differences may due to outliers and can be ignored. Therefore, we conclude that the relationship between miles per gallon and weight is not subject to the number of cylinders.
